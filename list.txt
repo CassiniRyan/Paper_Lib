@@ -1,0 +1,163 @@
+# Paper List
+
+Updated: 2026-06-23
+
+Total: 126 PDF files
+
+## List 1: Perceptive / Mapping / LIO (3)
+
+- Elevation Mapping for Locomotion and Navigation using GPU
+- FAST-LIO: A Fast, Robust LiDAR-inertial Odometry Package by Tightly-Coupled Iterated Kalman Filter
+- MEM: Multi-Modal Elevation Mapping for Robotics and Learning
+
+## List 2: Locomotion / Perceptive Locomotion / Parkour (59 entries, 60 PDFs)
+
+- A Hybrid Autoencoder for Robust Heightmap Generation from Fused Lidar and Depth Data for Humanoid Robot Locomotion
+- AME-2: Agile and Generalized Legged Locomotion via Attention-Based Neural Map Encoding
+- ANYmal Parkour Learning Agile Navigation for Quadrupedal Robots
+- APEX: Learning Adaptive High-Platform Traversal for Humanoid Robots
+- Architecture Is All You Need Diversity-Enabled Sweet Spots for Robust Humanoid Locomotion
+- Attention-Based Map Encoding for Learning Generalized Legged Locomotion
+- BeamDojo Learning Agile Humanoid Locomotion on Sparse Footholds
+- CReF: Cross-modal and Recurrent Fusion for Depth-conditioned Humanoid Locomotion
+- Collision-Free Humanoid Traversal in Cluttered Indoor Scenes
+- DPL: Depth-only Perceptive Humanoid Locomotion via Realistic Depth Synthesis and Cross-Attention Terrain Reconstruction
+- Deep Whole-body Parkour
+- Distillation-PPO A Novel Two-Stage Reinforcement Learning Framework for Humanoid Robot Perceptive Locomotion
+- Extreme Parkour with Legged Robots
+- FastStair Learning to Run Up Stairs with Humanoid Robots
+- GRAIL: Generating Humanoid Loco-Manipulation from 3D Assets and Video Priors
+- Gait-Adaptive Perceptive Humanoid Locomotion with Real-Time Under-Base Terrain Reconstruction
+- Gallant Voxel Grid-based Humanoid Locomotion and Local-navigation across 3D Constrained Terrains
+- GaussGym An open-source real-to-sim framework for learning locomotion from pixels
+- GeoLoco: Leveraging 3D Geometric Priors from Visual Foundation Model for Robust RGB-Only Humanoid Locomotion
+- High-speed control and navigation for quadrupedal robots on complex and discrete terrain (2025.06)(Science Robotics 2025) [includes Supplementary Materials]
+- Hiking in the Wild A Scalable Perceptive Parkour Framework for Humanoids
+- Humanoid Parkour Learning
+- Hybrid Internal Model Learning Agile Legged Locomotion with Simulated Robot Response
+- LadderMan: Learning Humanoid Perceptive Ladder Climbing
+- Learning Agile Locomotion on Risky Terrains
+- Learning Autonomous and Safe Quadruped Traversal of Complex Terrains Using Multi-Layer Elevation Maps
+- Learning Humanoid Locomotion with Perceptive Internal Model
+- Learning Perceptive Humanoid Locomotion over Challenging Terrain
+- Learning Robust Autonomous Navigation and Locomotion for Wheeled-Legged Robots
+- Learning Vision-Based Bipedal Locomotion for Challenging Terrain
+- Learning robust perceptive locomotion for quadrupedal robots in the wild
+- Legged Locomotion in Challenging Terrains using Egocentric Vision
+- Locomotion Beyond Feet
+- MARCH: Model-Assisted Reinforcement Learning for the Perceptive Control of Humanoids over Sparse Footholds
+- MeshMimic - Geometry-Aware Humanoid Motion Learning through 3D Scene Reconstruction
+- Mind Your Steps: A General Learning Framework for Accurate Humanoid Foothold Tracking
+- MoRE: Mixture of Residual Experts for Humanoid Lifelike Gaits Learning on Complex Terrains
+- MuGen: Multi-Skill Generative Locomotion Controller for Humanoid Robots
+- Now You See That Learning End-to-End Humanoid Locomotion from Raw Pixels
+- Omni-Perception Omnidirectional Collision Avoidance for Legged Locomotion in Dynamic Environments
+- Opening the Sim-to-Real Door for Humanoid Pixel-to-Action Policy Transfer
+- PIE: Parkour with Implicit-Explicit Learning Framework for Legged Robots
+- Parkour in the Wild Learning a General and Extensible Agile Locomotion Policy Using Multi-expert Distillation and RL Fine-tuning
+- Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Centric Terrain
+- Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching
+- Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
+- RPL: Learning Robust Humanoid Perceptive Locomotion on Challenging Terrains
+- Real-Time Polygonal Semantic Mapping for Humanoid Robot Stair Climbing
+- Robot Parkour Learning
+- SSR: Scaling Surefooted and Symmetric Humanoid Traversal to the Open World
+- SSR: Scaling Surefooted and Symmetric Humanoid Traversal to the Open World (new)
+- START: Traversing Sparse Footholds with Terrain Reconstruction
+- T-GMP: Terrain-conditioned Generative Motion Priors for Versatile and Natural Humanoid Locomotion
+- TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion
+- TTT-Parkour: Rapid Test-Time Training for Perceptive Robot Parkour
+- VB-Com: Learning Vision-Blind Composite Humanoid Locomotion Against Deficient Perception
+- Visual Imitation Enables Contextual Humanoid Control
+- Walking with Terrain Reconstruction Learning to Traverse Risky Sparse Footholds
+- Walk the PLANC Physics-Guided RL for Agile Humanoid Locomotion on Constrained Footholds
+
+## List 3: Navigation / SLAM / Traversability (10)
+
+- APREBot: Active Perception System for Reflexive Evasion Robot
+- GuideWalk: Learning Unified Autonomous Navigation and Locomotion for Humanoid Robots across Versatile Terrains
+- Hier-SLAM: Scaling-up Semantics in SLAM with a Hierarchically Categorical Gaussian Splatting
+- Learning Robust Autonomous Navigation and Locomotion for Wheeled-Legged Robots
+- Learning to Evolve: Multi-modal Interactive Fields for Robust Humanoid Navigation in Dynamic Environments
+- NeuPAN: Direct Point Robot Navigation with End-to-End Model-based Learning
+- OpenGS-SLAM: Open-Set Dense Semantic SLAM with 3D Gaussian Splatting for Object-Level Scene Understanding
+- STATE-NAV: Stability-Aware Traversability Estimation for Bipedal Navigation on Rough Terrain
+- SysNav: Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
+- UEREBot: Learning Safe Quadrupedal Locomotion under Unstructured Environments and High-Speed Dynamic Obstacles
+
+## List 4: Loco-Manipulation / Interaction (16)
+
+- Accelerating and Scaling MPC-Guided Reinforcement Learning for Humanoid Locomotion and Manipulation
+- CEER: Compliant End-Effector and Root Control as a Unified Interface for Hierarchical Humanoid Loco-Manipulation
+- GRAIL: Generating Humanoid Loco-Manipulation from 3D Assets and Video Priors
+- HANDOFF: Humanoid Agentic Task-Space Whole-Body Control via Distilled Complementary Teachers
+- HDMI: Learning Interactive Humanoid Whole-Body Control from Human Videos
+- HOIST: Humanoid Optimization with Imitation and Sample-efficient Tuning for Manipulating Suspended Loads
+- HumanX: Toward Agile and Generalizable Humanoid Interaction Skills from Human Videos
+- HumanoidMimicGen: Data Generation for Loco-Manipulation via Whole-Body Planning
+- MotionWAM: Towards Foundation World Action Models for Real-Time Humanoid Loco-Manipulation
+- OASIS: From Simulation Data Collection to Real-World Humanoid Loco-Manipulation
+- OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
+- OmniRetarget: Interaction-Preserving Data Generation for Humanoid Whole-Body Loco-Manipulation and Scene Interaction
+- SUGAR: A Scalable Human-Video-Driven Generalizable Humanoid Loco-Manipulation Learning Framework
+- SplitAdapter: Load-Aware Humanoid Loco-Manipulation via Factorized Adaptation
+- Thor: Towards Human-Level Whole-Body Reactions for Intense Contact-Rich Environments
+- VAIC: Vision-Guided Humanoid Agile Object Interaction Control via Decoupled Commands
+- WT-UMI: Tactile-based Whole-Body Manipulation via Force-Supervised Contact-Aware Planning
+
+## List 5: Motion Tracking / Retargeting / Motion Mimicking (14)
+
+- Any2Any: Efficient Cross-Embodiment Transfer for Humanoid Whole-Body Tracking
+- BeyondMimic: From Motion Tracking to Versatile Humanoid Control via Guided Diffusion
+- From Generated Human Videos to Physically Plausible Robot Trajectories
+- GMR Retargeting Matters General Motion Retargeting for Humanoid Motion Tracking
+- HoloMotion-1 Technical Report
+- Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking
+- LIMMT: Less is More for Motion Tracking
+- M3imic: Learning a Versatile Whole-Body Controller for Multimodal Motion Mimicking
+- Make Tracking Easy: Neural Motion Retargeting for Humanoid Whole-body Control
+- OmniTrack: General Motion Tracking via Physics-Consistent Reference
+- Robust and Generalized Humanoid Motion Tracking
+- SONIC: Supersizing Motion Tracking for Natural Humanoid Whole-Body Control
+- Stubborn: A Streamlined and Unified Reinforcement Learning Framework for Robust Motion Tracking and Fall Recovery for Humanoids
+- Track Any Motions under Any Disturbances
+
+## List 6: Teleoperation / Data Collection (4)
+
+- CLOT: Closed-Loop Global Motion Tracking for Whole-Body Humanoid Teleoperation
+- TWIST2: Scalable, Portable, and Holistic Humanoid Data Collection System
+- TWIST: Teleoperated Whole-Body Imitation System
+- X-OP: Cross-Morphology Whole-Body Teleoperation via MPC Retargeting
+
+## List 7: Motion Generation / Motion Priors / Character Control (6)
+
+- AMP Adversarial Motion Priors for Stylized Physics-Based Character Control
+- DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills
+- MaskedMimic: Unified Physics-Based Character Control Through Masked Motion Inpainting
+- OMG: Omni-Modal Motion Generation for Generalist Humanoid Control
+- Perpetual Humanoid Control for Real-time Simulated Avatars
+- SMP Reusable Score-Matching Motion Priors for Physics-Based Character Control
+
+## List 8: Whole-Body Control / Safety / Compliance (9)
+
+- Agility Meets Stability: Versatile Humanoid Control with Heterogeneous Data
+- Any2Any: Efficient Cross-Embodiment Transfer for Humanoid Whole-Body Tracking
+- BFM-Zero: A Promptable Behavioral Foundation Model for Humanoid Control Using Unsupervised Reinforcement Learning
+- CHIP: Adaptive Compliance for Humanoid Control through Hindsight Perturbation
+- GentleHumanoid: Learning Upper-body Compliance for Contact-rich Human and Object Interaction
+- HALO:Closing Sim-to-Real Gap for Heavy-loaded Humanoid Agile Motion Skills via Differentiable Simulation
+- OmniXtreme: Breaking the Generality Barrier in High-Dynamic Humanoid Control
+- Perceptive Behavior Foundation Model: Adapting
+- SafeFall: Learning Protective Control for Humanoid Robots
+- Safety-Critical Whole-Body Control for Humanoid Robots via Input-to-State Safe Control Barrier Functions
+- SoftMimic: Learning Compliant Whole-body Control from Examples
+
+## List 9: Human Motion Reconstruction / Human Motion Recovery (2)
+
+- TRAM: Global Trajectory and Motion of 3D Humans from in-the-wild Videos
+- World-Grounded Human Motion Recovery via Gravity-View Coordinates
+
+## Duplicates (2)
+
+- Deep Whole-body Parkour
+- TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion
