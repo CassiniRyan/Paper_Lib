@@ -1,0 +1,67 @@
+# Locomotion
+
+PDF push tracking: OFF
+PDF LFS pull: OFF
+PDF count: 59
+
+## Papers
+
+- A Hybrid Autoencoder for Robust Heightmap Generation from Fused Lidar and Depth Data for Humanoid Robot Locomotion
+- AME-2: Agile and Generalized Legged Locomotion via Attention-Based Neural Map Encoding
+- ANYmal Parkour Learning Agile Navigation for Quadrupedal Robots
+- APEX: Learning Adaptive High-Platform Traversal for Humanoid Robots
+- Architecture Is All You Need Diversity-Enabled Sweet Spots for Robust Humanoid Locomotion
+- Attention-Based Map Encoding for Learning Generalized Legged Locomotion
+- BeamDojo Learning Agile Humanoid Locomotion on Sparse Footholds
+- Collision-Free Humanoid Traversal in Cluttered Indoor Scenes
+- CReF: Cross-modal and Recurrent Fusion for Depth-conditioned Humanoid Locomotion
+- Deep Whole-body Parkour
+- Distillation-PPO A Novel Two-Stage Reinforcement Learning Framework for Humanoid Robot Perceptive Locomotion
+- DPL: Depth-only Perceptive Humanoid Locomotion via Realistic Depth Synthesis and Cross-Attention Terrain Reconstruction
+- Extreme Parkour with Legged Robots
+- FastStair Learning to Run Up Stairs with Humanoid Robots
+- Gait-Adaptive Perceptive Humanoid Locomotion with Real-Time Under-Base Terrain Reconstruction
+- Gallant Voxel Grid-based Humanoid Locomotion and Local-navigation across 3D Constrained Terrains
+- GaussGym An open-source real-to-sim framework for learning locomotion from pixels
+- GeoLoco: Leveraging 3D Geometric Priors from Visual Foundation Model for Robust RGB-Only Humanoid Locomotion
+- GRAIL: Generating Humanoid Loco-Manipulation from 3D Assets and Video Priors
+- High-speed control and navigation for quadrupedal robots on complex and discrete terrain (2025.06)(Science Robotics 2025)
+- Supplementary Materials
+- Hiking in the Wild A Scalable Perceptive Parkour Framework for Humanoids
+- Humanoid Parkour Learning
+- Hybrid Internal Model Learning Agile Legged Locomotion with Simulated Robot Response
+- LadderMan: Learning Humanoid Perceptive Ladder Climbing
+- Learning Agile Locomotion on Risky Terrains
+- Learning Autonomous and Safe Quadruped Traversal of Complex Terrains Using Multi-Layer Elevation Maps
+- Learning Humanoid Locomotion with Perceptive Internal Model
+- Learning Perceptive Humanoid Locomotion over Challenging Terrain
+- Learning Robust Autonomous Navigation and Locomotion for Wheeled-Legged Robots
+- Learning robust perceptive locomotion for quadrupedal robots in the wild
+- Learning Vision-Based Bipedal Locomotion for Challenging Terrain
+- Legged Locomotion in Challenging Terrains using Egocentric Vision
+- Locomotion Beyond Feet
+- MARCH: Model-Assisted Reinforcement Learning for the Perceptive Control of Humanoids over Sparse Footholds
+- MeshMimic - Geometry-Aware Humanoid Motion Learning through 3D Scene Reconstruction
+- Mind Your Steps: A General Learning Framework for Accurate Humanoid Foothold Tracking
+- MoRE: Mixture of Residual Experts for Humanoid Lifelike Gaits Learning on Complex Terrains
+- MuGen: Multi-Skill Generative Locomotion Controller for Humanoid Robots
+- Now You See That Learning End-to-End Humanoid Locomotion from Raw Pixels
+- Omni-Perception Omnidirectional Collision Avoidance for Legged Locomotion in Dynamic Environments
+- Opening the Sim-to-Real Door for Humanoid Pixel-to-Action Policy Transfer
+- Parkour in the Wild Learning a General and Extensible Agile Locomotion Policy Using Multi-expert Distillation and RL Fine-tuning
+- Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Centric Terrain
+- Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching
+- Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
+- PIE: Parkour with Implicit-Explicit Learning Framework for Legged Robots
+- Real-Time Polygonal Semantic Mapping for Humanoid Robot Stair Climbing
+- Robot Parkour Learning
+- RPL: Learning Robust Humanoid Perceptive Locomotion on Challenging Terrains
+- SSR: Scaling Surefooted and Symmetric Humanoid Traversal to the Open World
+- START: Traversing Sparse Footholds with Terrain Reconstruction
+- T-GMP: Terrain-conditioned Generative Motion Priors for Versatile and Natural Humanoid Locomotion
+- TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion
+- TTT-Parkour: Rapid Test-Time Training for Perceptive Robot Parkour
+- VB-Com: Learning Vision-Blind Composite Humanoid Locomotion Against Deficient Perception
+- Visual Imitation Enables Contextual Humanoid Control
+- Walk the PLANC Physics-Guided RL for Agile Humanoid Locomotion on Constrained Footholds
+- Walking with Terrain Reconstruction Learning to Traverse Risky Sparse Footholds

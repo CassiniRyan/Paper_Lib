@@ -1,0 +1,2 @@
+TRAM: Global Trajectory and Motion of 3D Humans from in-the-wild Videos
+World-Grounded Human Motion Recovery via Gravity-View Coordinates
