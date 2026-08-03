@@ -23,5 +23,11 @@ TextOp: Real-time Interactive Text-Driven Humanoid Robot Motion Generation and C
 UniAct: Unified Motion Generation and Action Streaming for Humanoid Robots, https://jnnan.github.io/uniact/
 UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots, https://yinkangning0124.github.io/Humanoid-UniTracker/
 Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations, https://humanoid-manipulation-interface.github.io
-
-
+SG-Nav: Online 3D Scene Graph Prompting for LLM-based Zero-shot Object Navigation
+VLFM: Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
+DORAEMON: A Unified Library for Visual Object Modeling and Representation Learning at Scale
+WMNav: Integrating Vision-Language Models into World Models for Object Goal Navigation
+MSGNav: Unleashing the Power of Multi-modal 3D Scene Graph for Zero-Shot Embodied Navigation
+FSR-VLN: Fast and Slow Reasoning for Vision-Language Navigation with Hierarchical Multi-modal Scene Graph
+HoloAgent-0: A Unified Embodied Agent Framework with 3D Spatial Memory
+Safe-SAGE: Social-Semantic Adaptive Guidance for Safe Engagement through Laplace-Modulated Poisson Safety Functions
