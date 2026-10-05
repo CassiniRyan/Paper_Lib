@@ -7,18 +7,38 @@ PDF count: 16
 ## Papers
 
 - Any2Any: Efficient Cross-Embodiment Transfer for Humanoid Whole-Body Tracking
+- CLONE: Closed-Loop Whole-Body Humanoid Teleoperation for Long-Horizon Tasks
+- CLOT: Closed-Loop Global Motion Tracking for Whole-Body Humanoid Teleoperation
 - BeyondMimic: From Motion Tracking to Versatile Humanoid Control via Guided Diffusion
 - BFMTrack: Latent Sequence Optimization for Physics-Based Motion Tracking with Behavioral Foundation Models
+- ExBody2: Advanced Expressive Humanoid Whole-Body Control
+- Extreme-RGMT: Continual Learning of Highly Dynamic Skills for Robust Generalist Humanoid Control
 - From Generated Human Videos to Physically Plausible Robot Trajectories
+- GigaBrain-WBC-0.5: A Behavior World Model for Robust Humanoid Whole-Body Tracking with Environment Interaction
+- GMT: General Motion Tracking for Humanoid Whole-Body Control
 - GMR Retargeting Matters General Motion Retargeting for Humanoid Motion Tracking
 - HoloMotion-1 Technical Report
+- HDMI: Learning Interactive Humanoid Whole-Body Control from Human Videos
 - Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking
+- HumanPlus: Humanoid Shadowing and Imitation from Humans
+- HumanX: Toward Agile and Generalizable Humanoid Interaction Skills from Human Videos
+- HOVER: Versatile Neural Whole-Body Controller for Humanoid Robots
+- KungfuBot2: Learning Versatile Motion Skills for Humanoid Whole-Body Control
 - LIMMT: Less is More for Motion Tracking
 - M3imic: Learning a Versatile Whole-Body Controller for Multimodal Motion Mimicking
 - Make Tracking Easy: Neural Motion Retargeting for Humanoid Whole-body Control
+- MOSAIC: Bridging the Sim-to-Real Gap in Generalist Humanoid Motion Tracking and Teleoperation with Rapid Residual Adaptation
+- OmniH2O: Universal and Dexterous Human-to-Humanoid Whole-Body Teleoperation and Learning
+- OmniRetarget: Interaction-Preserving Data Generation for Humanoid Whole-Body Loco-Manipulation and Scene Interaction
 - OmniTrack: General Motion Tracking via Physics-Consistent Reference
 - PHUMA:Physically Reliable Humanoid Locomotion Dataset
 - Robust and Generalized Humanoid Motion Tracking
 - SONIC: Supersizing Motion Tracking for Natural Humanoid Whole-Body Control
 - Stubborn: A Streamlined and Unified Reinforcement Learning Framework for Robust Motion Tracking and Fall Recovery for Humanoids
+- SoftMimic: Learning Compliant Whole-body Control from Examples
 - Track Any Motions under Any Disturbances
+- TWIST2: Scalable, Portable, and Holistic Humanoid Data Collection System
+- TWIST: Teleoperated Whole-Body Imitation System
+- Unified Motion Retargeting for Humanoids with Learned Point Cloud Correspondence
+- UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots
+- X-OP: Cross-Morphology Whole-Body Teleoperation via MPC Retargeting

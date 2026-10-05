@@ -7,12 +7,33 @@ PDF count: 10
 ## Papers
 
 - APREBot: Active Perception System for Reflexive Evasion Robot
+- ANYmal Parkour Learning Agile Navigation for Quadrupedal Robots
+- Collision-Free Humanoid Traversal in Cluttered Indoor Scenes
+- DCReg: Decoupled Characterization for Efficient Degenerate LiDAR Registration
+- Elevation Mapping for Locomotion and Navigation using GPU
+- Elevator-LIO: Robust LiDAR-Inertial Odometry for Multi-Floor Navigation under Elevator-Induced Non-Inertial Motion
+- FAST-LIO: A Fast, Robust LiDAR-inertial Odometry Package by Tightly-Coupled Iterated Kalman Filter
+- FSR-VLN: Fast and Slow Reasoning for Vision-Language Navigation with Hierarchical Multi-modal Scene Graph
 - GuideWalk: Learning Unified Autonomous Navigation and Locomotion for Humanoid Robots across Versatile Terrains
+- Gallant Voxel Grid-based Humanoid Locomotion and Local-navigation across 3D Constrained Terrains
+- HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments with Dynamic Multi-Human Interactions
 - Hier-SLAM: Scaling-up Semantics in SLAM with a Hierarchically Categorical Gaussian Splatting
+- HoloAgent-0: A Unified Embodied Agent Framework with 3D Spatial Memory
+- Holistic Fusion: Task- and Setup-Agnostic Robot Localization and State Estimation with Factor Graphs
+- High-speed control and navigation for quadrupedal robots on complex and discrete terrain (2025.06)(Science Robotics 2025)
+- Learning Autonomous and Safe Quadruped Traversal of Complex Terrains Using Multi-Layer Elevation Maps
 - Learning Robust Autonomous Navigation and Locomotion for Wheeled-Legged Robots
 - Learning to Evolve: Multi-modal Interactive Fields for Robust Humanoid Navigation in Dynamic Environments
+- MSGNav: Unleashing the Power of Multi-modal 3D Scene Graph for Zero-Shot Embodied Navigation
+- MEM: Multi-Modal Elevation Mapping for Robotics and Learning
 - NeuPAN: Direct Point Robot Navigation with End-to-End Model-based Learning
 - OpenGS-SLAM: Open-Set Dense Semantic SLAM with 3D Gaussian Splatting for Object-Level Scene Understanding
+- Omni-Perception Omnidirectional Collision Avoidance for Legged Locomotion in Dynamic Environments
+- Safe-SAGE: Social-Semantic Adaptive Guidance for Safe Engagement through Laplace-Modulated Poisson Safety Functions
+- SG-Nav: Online 3D Scene Graph Prompting for LLM-based Zero-shot Object Navigation
 - STATE-NAV: Stability-Aware Traversability Estimation for Bipedal Navigation on Rough Terrain
 - SysNav: Multi-Level Systematic Cooperation Enables Real-World, Cross-Embodiment Object Navigation
+- TANGO: Humanoid Navigation in Cluttered Environments with a Whole-Body Vision-Language-Action Model
 - UEREBot: Learning Safe Quadrupedal Locomotion under Unstructured Environments and High-Speed Dynamic Obstacles
+- VLFM: Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
+- WMNav: Integrating Vision-Language Models into World Models for Object Goal Navigation

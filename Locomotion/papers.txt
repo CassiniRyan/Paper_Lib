@@ -17,6 +17,7 @@ Gallant Voxel Grid-based Humanoid Locomotion and Local-navigation across 3D Cons
 GaussGym An open-source real-to-sim framework for learning locomotion from pixels
 GeoLoco: Leveraging 3D Geometric Priors from Visual Foundation Model for Robust RGB-Only Humanoid Locomotion
 GRAIL: Generating Humanoid Loco-Manipulation from 3D Assets and Video Priors
+GuideWalk: Learning Unified Autonomous Navigation and Locomotion for Humanoid Robots across Versatile Terrains
 High-speed control and navigation for quadrupedal robots on complex and discrete terrain (2025.06)(Science Robotics 2025)
 Supplementary Materials
 Hiking in the Wild A Scalable Perceptive Parkour Framework for Humanoids
@@ -45,14 +46,20 @@ Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Cent
 Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching
 Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
 PIE: Parkour with Implicit-Explicit Learning Framework for Legged Robots
+PHUMA:Physically Reliable Humanoid Locomotion Dataset
 Real-Time Polygonal Semantic Mapping for Humanoid Robot Stair Climbing
 Robot Parkour Learning
 RPL: Learning Robust Humanoid Perceptive Locomotion on Challenging Terrains
 SSR: Scaling Surefooted and Symmetric Humanoid Traversal to the Open World
 START: Traversing Sparse Footholds with Terrain Reconstruction
+STATE-NAV: Stability-Aware Traversability Estimation for Bipedal Navigation on Rough Terrain
+Stubborn: A Streamlined and Unified Reinforcement Learning Framework for Robust Motion Tracking and Fall Recovery for Humanoids
 T-GMP: Terrain-conditioned Generative Motion Priors for Versatile and Natural Humanoid Locomotion
 TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion
 TTT-Parkour: Rapid Test-Time Training for Perceptive Robot Parkour
+UniReLo: Learning a Unified Humanoid Policy from Fall Recovery to Locomotion across Diverse Terrains
+Unified Walking, Running, and Recovery for Humanoids via State-Dependent Adversarial Motion Priors
+UEREBot: Learning Safe Quadrupedal Locomotion under Unstructured Environments and High-Speed Dynamic Obstacles
 VB-Com: Learning Vision-Blind Composite Humanoid Locomotion Against Deficient Perception
 Visual Imitation Enables Contextual Humanoid Control
 Walk the PLANC Physics-Guided RL for Agile Humanoid Locomotion on Constrained Footholds

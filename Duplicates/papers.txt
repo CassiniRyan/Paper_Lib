@@ -1,2 +1,0 @@
-Deep Whole-body Parkour
-TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion

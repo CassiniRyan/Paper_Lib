@@ -8,6 +8,15 @@ PDF count: 5
 
 - CLONE: Closed-Loop Whole-Body Humanoid Teleoperation for Long-Horizon Tasks
 - CLOT: Closed-Loop Global Motion Tracking for Whole-Body Humanoid Teleoperation
+- HiPHI: A Large-Scale Benchmark for High-Precision Human Motion and Object-Interaction
+- HOMIE: Humanoid Loco-Manipulation with Isomorphic Exoskeleton Cockpit
+- HumanPlus: Humanoid Shadowing and Imitation from Humans
+- Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations
+- MOSAIC: Bridging the Sim-to-Real Gap in Generalist Humanoid Motion Tracking and Teleoperation with Rapid Residual Adaptation
+- OmniH2O: Universal and Dexterous Human-to-Humanoid Whole-Body Teleoperation and Learning
+- OASIS: From Simulation Data Collection to Real-World Humanoid Loco-Manipulation
+- PHUMA:Physically Reliable Humanoid Locomotion Dataset
+- Teleopit: A Full-Embodiment Humanoid Teleoperation System
 - TWIST2: Scalable, Portable, and Holistic Humanoid Data Collection System
 - TWIST: Teleoperated Whole-Body Imitation System
 - X-OP: Cross-Morphology Whole-Body Teleoperation via MPC Retargeting

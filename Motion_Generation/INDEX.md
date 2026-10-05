@@ -9,6 +9,11 @@ PDF count: 6
 - AMP Adversarial Motion Priors for Stylized Physics-Based Character Control
 - DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills
 - MaskedMimic: Unified Physics-Based Character Control Through Masked Motion Inpainting
+- MuGen: Multi-Skill Generative Locomotion Controller for Humanoid Robots
 - OMG: Omni-Modal Motion Generation for Generalist Humanoid Control
 - Perpetual Humanoid Control for Real-time Simulated Avatars
 - SMP Reusable Score-Matching Motion Priors for Physics-Based Character Control
+- T-GMP: Terrain-conditioned Generative Motion Priors for Versatile and Natural Humanoid Locomotion
+- TextOp: Real-time Interactive Text-Driven Humanoid Robot Motion Generation and Control
+- UniAct: Unified Motion Generation and Action Streaming for Humanoid Robots
+- Unified Walking, Running, and Recovery for Humanoids via State-Dependent Adversarial Motion Priors
