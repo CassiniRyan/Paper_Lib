@@ -40,4 +40,16 @@ __pycache__/
 /Duplicates/*.PDF
 /Duplicates/**/*.pdf
 /Duplicates/**/*.PDF
+/World_Action_Model/*.pdf
+/World_Action_Model/*.PDF
+/World_Action_Model/**/*.pdf
+/World_Action_Model/**/*.PDF
+/Vision_Language_Action/*.pdf
+/Vision_Language_Action/*.PDF
+/Vision_Language_Action/**/*.pdf
+/Vision_Language_Action/**/*.PDF
+/Vision_Language_Navigation/*.pdf
+/Vision_Language_Navigation/*.PDF
+/Vision_Language_Navigation/**/*.pdf
+/Vision_Language_Navigation/**/*.PDF
 # END pdf-block-manager

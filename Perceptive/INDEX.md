@@ -7,6 +7,7 @@ PDF count: 3
 ## Papers
 
 - A Hybrid Autoencoder for Robust Heightmap Generation from Fused Lidar and Depth Data for Humanoid Robot Locomotion
+- Agile-WAM: An Agile Tactile World Action Model for Contact-Rich Robot Control
 - AME-2: Agile and Generalized Legged Locomotion via Attention-Based Neural Map Encoding
 - APREBot: Active Perception System for Reflexive Evasion Robot
 - CReF: Cross-modal and Recurrent Fusion for Depth-conditioned Humanoid Locomotion

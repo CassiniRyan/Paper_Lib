@@ -27,17 +27,18 @@ HOIST: Humanoid Optimization with Imitation and Sample-efficient Tuning for Mani
 HOVER: Versatile Neural Whole-Body Controller for Humanoid Robots
 Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking
 Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations
+I-BFM: Reward-Conditioned Robust Humanoid Interaction via Unsupervised Reinforcement Learning
 KungfuBot2: Learning Versatile Motion Skills for Humanoid Whole-Body Control
 LIMMT: Less is More for Motion Tracking
 M3imic: Learning a Versatile Whole-Body Controller for Multimodal Motion Mimicking
 Make Tracking Easy: Neural Motion Retargeting for Humanoid Whole-body Control
 OmniXtreme: Breaking the Generality Barrier in High-Dynamic Humanoid Control
-OmniContact: Chaining Meta-Skills via Contact Flow for
+OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
 OmniH2O: Universal and Dexterous Human-to-Humanoid Whole-Body Teleoperation and Learning
 OmniRetarget: Interaction-Preserving Data Generation for Humanoid Whole-Body Loco-Manipulation and Scene Interaction
 OmniTrack: General Motion Tracking via Physics-Consistent Reference
 OMG: Omni-Modal Motion Generation for Generalist Humanoid Control
-Perceptive Behavior Foundation Model: Adapting
+Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Centric Terrain
 SafeFall: Learning Protective Control for Humanoid Robots
 Safety-Critical Whole-Body Control for Humanoid Robots via Input-to-State Safe Control Barrier Functions
 Scaling Behavior Foundation Model for Humanoid Robots
@@ -50,7 +51,6 @@ TANGO: Humanoid Navigation in Cluttered Environments with a Whole-Body Vision-La
 TextOp: Real-time Interactive Text-Driven Humanoid Robot Motion Generation and Control
 Thor: Towards Human-Level Whole-Body Reactions for Intense Contact-Rich Environments
 Track Any Motions under Any Disturbances
-Unified Motion Retargeting for Humanoids with Learned Point Cloud Correspondence
 UniAct: Unified Motion Generation and Action Streaming for Humanoid Robots
 UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots
 VAIC: Vision-Guided Humanoid Agile Object Interaction Control via Decoupled Commands

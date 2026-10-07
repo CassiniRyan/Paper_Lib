@@ -27,7 +27,6 @@ PDF count: 59
 - GRAIL: Generating Humanoid Loco-Manipulation from 3D Assets and Video Priors
 - GuideWalk: Learning Unified Autonomous Navigation and Locomotion for Humanoid Robots across Versatile Terrains
 - High-speed control and navigation for quadrupedal robots on complex and discrete terrain (2025.06)(Science Robotics 2025)
-- Supplementary Materials
 - Hiking in the Wild A Scalable Perceptive Parkour Framework for Humanoids
 - Humanoid Parkour Learning
 - Hybrid Internal Model Learning Agile Legged Locomotion with Simulated Robot Response
@@ -51,7 +50,6 @@ PDF count: 59
 - Opening the Sim-to-Real Door for Humanoid Pixel-to-Action Policy Transfer
 - Parkour in the Wild Learning a General and Extensible Agile Locomotion Policy Using Multi-expert Distillation and RL Fine-tuning
 - Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Centric Terrain
-- Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching
 - Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
 - PIE: Parkour with Implicit-Explicit Learning Framework for Legged Robots
 - PHUMA:Physically Reliable Humanoid Locomotion Dataset

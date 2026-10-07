@@ -11,6 +11,7 @@ PDF count: 16
 - CLOT: Closed-Loop Global Motion Tracking for Whole-Body Humanoid Teleoperation
 - BeyondMimic: From Motion Tracking to Versatile Humanoid Control via Guided Diffusion
 - BFMTrack: Latent Sequence Optimization for Physics-Based Motion Tracking with Behavioral Foundation Models
+- BFM-Zero: A Promptable Behavioral Foundation Model for Humanoid Control Using Unsupervised Reinforcement Learning
 - ExBody2: Advanced Expressive Humanoid Whole-Body Control
 - Extreme-RGMT: Continual Learning of Highly Dynamic Skills for Robust Generalist Humanoid Control
 - From Generated Human Videos to Physically Plausible Robot Trajectories
@@ -20,6 +21,7 @@ PDF count: 16
 - HoloMotion-1 Technical Report
 - HDMI: Learning Interactive Humanoid Whole-Body Control from Human Videos
 - Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking
+- I-BFM: Reward-Conditioned Robust Humanoid Interaction via Unsupervised Reinforcement Learning
 - HumanPlus: Humanoid Shadowing and Imitation from Humans
 - HumanX: Toward Agile and Generalizable Humanoid Interaction Skills from Human Videos
 - HOVER: Versatile Neural Whole-Body Controller for Humanoid Robots
@@ -31,7 +33,6 @@ PDF count: 16
 - OmniH2O: Universal and Dexterous Human-to-Humanoid Whole-Body Teleoperation and Learning
 - OmniRetarget: Interaction-Preserving Data Generation for Humanoid Whole-Body Loco-Manipulation and Scene Interaction
 - OmniTrack: General Motion Tracking via Physics-Consistent Reference
-- PHUMA:Physically Reliable Humanoid Locomotion Dataset
 - Robust and Generalized Humanoid Motion Tracking
 - SONIC: Supersizing Motion Tracking for Natural Humanoid Whole-Body Control
 - Stubborn: A Streamlined and Unified Reinforcement Learning Framework for Robust Motion Tracking and Fall Recovery for Humanoids

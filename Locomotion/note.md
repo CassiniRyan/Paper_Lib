@@ -496,30 +496,6 @@ The modularity is a highlight. Compared with end-to-end pixel-to-joint policies,
 
 A valuable continuation would attach calibrated uncertainty and capture probability to every candidate foothold, then optimize expected risk rather than geometric cost alone. Multi-layer or voxel maps would cover overhangs, while force/impact-aware costs could distinguish a reachable step from a hardware-safe one. An emergency reactive policy should also be evaluated when the map changes after a foot sequence has been committed.
 
-## Supplementary Materials
-
-### Role of this document
-
-This is the separate supplement for the preceding high-speed quadruped paper, not another algorithm. Its value is reproducibility: it turns broad labels such as “tracker,” “state estimator,” and “adversarial terrain generator” into dimensions, update rates, losses, and pseudocode. It should therefore be cited together with the main paper. Keeping a distinct catalog entry is still useful because the local library contains it as a separate PDF and several decisive implementation facts appear only here.
-
-### Network and I/O details supplied by the supplement
-
-The actor receives a 167-dimensional vector assembled from current proprioception, three immediately preceding observations at 0.01, 0.02, and 0.03 s, planned foothold targets, and estimated linear velocity. It outputs 12 joint targets. Both actor and critic are MLPs with hidden widths 512 and 128; the critic receives ground-truth linear velocity during training, whereas the deployable actor uses the estimate. This asymmetric actor–critic arrangement prevents an unavailable simulator state from leaking into deployment.
-
-The velocity estimator is a one-layer, 128-unit GRU followed by an MLP with hidden widths 64 and 16. Its 42-dimensional per-step input contains proprioception and the previous action. A contact estimator consumes the actor-style observation and emits four contact probabilities. These contact predictions help the system decide when a requested step has actually occurred, a practical detail that is easy to miss if one reads only the main article. The tracker loop is specified at 100 Hz.
-
-The supplement also documents PPO hyperparameters, observation corruption, physical randomization, reward coefficients, foothold state machines, and the generator/tracker training schedule. The CVAE does not simply sample arbitrary maps: its latent controls stepping-stone geometry, and polynomial feasibility envelopes constrain radius, bearing, and yaw changes. An initial restricted distribution first stabilizes the tracker; adversarial evolution is introduced only afterward. This staging explains why the method receives useful sparse-reward experience rather than immediately collapsing.
-
-### What the extra experiments clarify
-
-Expanded terrain cases and ablations show that the planner and tracker are complementary. The tracker can absorb moderate target and state errors, but it cannot invent a long-horizon route across disconnected supports. Conversely, an accurate geometric route is not enough if the controller cannot meet contact timing under impact. The supplementary results also make clear that history and velocity estimation are not optional conveniences: the actor lacks direct base linear velocity on hardware and must infer it from short dynamics traces.
-
-### Critical reading
-
-The supplement improves reproducibility but does not eliminate important ambiguities: sensor-to-map latency, calibration drift, and the exact distribution of failed real trials deserve fuller reporting. Most numbers describe the policy and procedurally generated tests, while long-duration motor temperature, peak impact load, and map uncertainty receive less attention. Those are the quantities most likely to govern field reliability.
-
-For replication, this PDF is the better starting point for network construction, while the main article is the better source for system motivation and aggregate results. A future supplement should publish end-to-end timing distributions, failure videos with synchronized state estimates, trained checkpoints, and exact real-world map preprocessing. Those artifacts would permit evaluation of whether performance comes from the proposed planning/tracking ideas or from unreported perception and tuning choices.
-
 ## Hiking in the Wild A Scalable Perceptive Parkour Framework for Humanoids
 
 ### Direct high-bandwidth perception
@@ -1046,7 +1022,7 @@ TCRS itself encodes assumptions—fixed phase, conservative horizontal footholds
 
 Future work should infer contact/phase adjustments rather than preserving them, propagate TCRS uncertainty, and use volumetric or semantic perception. Evaluating genuinely held-out motion–terrain compositions and severe sensor failure would show whether identity gating preserves capability or merely delays forgetting.
 
-## Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching
+## Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
 
 ### Motion matching as the skill planner
 
@@ -1066,15 +1042,7 @@ Experts are consolidated with DAgger plus PPO. The student observes pelvis gravi
 
 The robot autonomously selects and chains skills from obstacles instead of requiring manual triggers. Motion matching is more controllable than a latent selector yet more flexible than a state machine. Human clips provide timing while physics tracking absorbs morphology/contact mismatch.
 
-Its ceiling is the library. Retrieval cannot invent a missing contact pattern, and feature weights can choose a visually close but dynamically bad transition. Future work should rank candidates with tracker reachability/value, output retrieval uncertainty, and learn from successful robot rollouts. Recovery and abort clips are as important as successful maneuvers. The next heading is the same paper under a punctuation variant.
-
-## Perceptive Humanoid Parkour: Chaining Dynamic Human Skills via Motion Matching
-
-### Duplicate-title cross-reference
-
-This is the same work as **Perceptive Humanoid Parkour Chaining Dynamic Human Skills via Motion Matching** immediately above; the colon/punctuation difference is inconsistent metadata. It should not be treated as a second experiment or counted twice.
-
-The full analysis above covers its kinematic nearest-neighbor matching, privileged skill-specific trackers, and DAgger/PPO depth student. These two list entries should eventually share one canonical bibliographic record while retaining cross-tags. They remain separate headings only because `papers.txt` currently contains both and these notes preserve one-to-one catalog coverage without duplicating the substantive review.
+Its ceiling is the library. Retrieval cannot invent a missing contact pattern, and feature weights can choose a visually close but dynamically bad transition. Future work should rank candidates with tracker reachability/value, output retrieval uncertainty, and learn from successful robot rollouts. Recovery and abort clips are as important as successful maneuvers.
 
 ## PIE: Parkour with Implicit-Explicit Learning Framework for Legged Robots
 

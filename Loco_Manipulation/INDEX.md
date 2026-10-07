@@ -18,14 +18,12 @@ PDF count: 18
 - HumanoidMimicGen: Data Generation for Loco-Manipulation via Whole-Body Planning
 - HumanX: Toward Agile and Generalizable Humanoid Interaction Skills from Human Videos
 - Humanoid Manipulation Interface: Humanoid Whole-Body Manipulation from Robot-Free Demonstrations
+- I-BFM: Reward-Conditioned Robust Humanoid Interaction via Unsupervised Reinforcement Learning
 - MotionWAM: Towards Foundation World Action Models for Real-Time Humanoid Loco-Manipulation
 - OASIS: From Simulation Data Collection to Real-World Humanoid Loco-Manipulation
-- OmniContact: Chaining Meta-Skills via Contact Flow for
+- OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
 - OmniH2O: Universal and Dexterous Human-to-Humanoid Whole-Body Teleoperation and Learning
 - OmniRetarget: Interaction-Preserving Data Generation for Humanoid Whole-Body Loco-Manipulation and Scene Interaction
-- π0: A Vision-Language-Action Flow Model for General Robot Control
-- π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities
-- Real-Time Execution of Action Chunking Flow Policies
 - SplitAdapter: Load-Aware Humanoid Loco-Manipulation via Factorized Adaptation
 - SUGAR: A Scalable Human-Video-Driven Generalizable Humanoid Loco-Manipulation Learning Framework
 - Thor: Towards Human-Level Whole-Body Reactions for Intense Contact-Rich Environments

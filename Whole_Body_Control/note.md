@@ -1157,7 +1157,7 @@ Evaluation should be decomposed by motion or task family and by failure source. 
 
 The most useful judgment asks what problem this design solves that a strong conventional tracker does not, and what it sacrifices. Better average tracking may hide lost rare skills, softened timing, higher power or unsafe contacts. The controller should estimate feasibility and uncertainty, reject or simplify references outside support, and retain an independent safety envelope for collision, torque and balance. Future work should test compound distribution shift—new motion plus payload, terrain, latency or disturbance—because isolated robustness factors are easier than the real whole-body deployment problem.
 
-## OmniContact: Chaining Meta-Skills via Contact Flow for
+## OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
 
 OmniContact proposes **contact flow** as the interface between planning and motor execution. At each control time it supplies sparse body-motion targets plus four binary end-effector contact states at nonuniform future offsets `{0,1,2,3,4,8,12,16,24,32,50}`. This carries near-term contact timing and longer-term intent without transmitting a dense whole-body trajectory.
 
@@ -1367,7 +1367,7 @@ The hierarchy creates an equally important limitation: the generator does not ob
 
 A strong continuation would close the loop by feeding tracker error, contact state, actuator margin, and local geometry back into generation; train with hard negative trajectories that failed execution; and report condition-conflict behavior when text, music, and keypoints disagree. Safety constraints, online latency distributions, and real-robot success should be measured separately from offline FID-style motion quality. Jointly adapting generator and tracker could improve feasibility, but should preserve the modular interface that makes OMG practically attractive.
 
-## Perceptive Behavior Foundation Model: Adapting
+## Perceptive Behavior Foundation Model: Adapting Human Motion Priors to Robot-Centric Terrain
 
 This truncated entry refers to adapting a behavior foundation model with robot-centric perception so broad human-motion priors respond to terrain and scene geometry. A perception-conditioned adapter/residual preserves general skills while modifying contacts. Its promise is scalable reuse; exact bibliographic title should be corrected if full metadata becomes available.
 
@@ -1814,39 +1814,6 @@ Evaluation should be decomposed by motion or task family and by failure source. 
 
 The most useful judgment asks what problem this design solves that a strong conventional tracker does not, and what it sacrifices. Better average tracking may hide lost rare skills, softened timing, higher power or unsafe contacts. The controller should estimate feasibility and uncertainty, reject or simplify references outside support, and retain an independent safety envelope for collision, torque and balance. Future work should test compound distribution shift—new motion plus payload, terrain, latency or disturbance—because isolated robustness factors are easier than the real whole-body deployment problem.
 
-## Unified Motion Retargeting for Humanoids with Learned Point Cloud Correspondence
-
-Source: [arXiv 2609.02134](https://arxiv.org/abs/2609.02134).
-
-UMR treats exterior surface point clouds—not skeleton joints—as the common interface between humans and robots. Learned dense correspondence in canonical poses supplies fine geometric anchors; constrained matching then retargets pose and interaction contacts across motion sources and embodiments. This removes hand-designed sparse body mappings and improves surface/contact fidelity. A new source template or robot still needs correspondence learning, and point geometry alone does not ensure dynamic feasibility or force consistency.
-
-### Dense correspondence as the retargeting interface
-
-Human sources and robot meshes are sampled into exterior point clouds. A correspondence network learns canonical dense features so a source surface point can select an analogous target location without matching skeleton names or joint topology. For each motion frame, constrained optimization moves robot root/joints so corresponding surface points align while respecting kinematics, smoothness, limits and contact anchors. The same representation transfers a hand/object or body/support contact directly rather than approximating it with a few manually chosen key bodies.
-
-Experiments span heterogeneous source formats, robot embodiments, locomotion and interaction, measuring fidelity/plausibility and downstream reference usefulness. Dense anchors capture torso/limb shape and contact area that sparse joints miss, making UMR particularly attractive for cross-morphology data compilation.
-
-Surface similarity is not semantic identity or physics: nearest-looking patches may have different load capability, friction or actuation, and correspondence errors can create plausible but wrong contacts. Optimization remains per-sequence and a new mesh/domain needs learned canonical features. Future work should include contact wrench/torque feasibility, confidence and human-correctable correspondences, temporal consistency, and closed-loop simulation acceptance before references reach hardware.
-
-
-### Learned correspondence, reuse, and failure analysis
-
-UMR first aligns source and robot in canonical poses and learns an ordered dense surface correspondence. This is a reusable preprocessing step for a given source template–robot pair, not a network that must infer mappings independently on every motion frame. During retargeting, corresponding positions and orientations become optimization objectives alongside robot joint limits, temporal smoothness, contacts, and kinematic constraints. Because the interface is an exterior point cloud, the same machinery can consume different skeletal conventions and can transfer a palm, forearm, knee, or torso contact without authors choosing a short list of semantic joint pairs.
-
-This is especially valuable for morphology gaps. Sparse end-effectors can match both hands and feet while producing an implausible spine, elbow orientation, or surface collision; dense anchors constrain the complete silhouette and distribute error over the body. Directly reusing contact-associated surface points also preserves interaction geometry better than asking a downstream PPO reward to rediscover it. Experiments across heterogeneous sources, robots, locomotion, and interaction test this claimed unification rather than only one human/G1 mapping.
-
-Dense correspondence also expands the ways a system can be wrong. Symmetric limbs or geometrically similar patches can be swapped; clothing/body-shape surfaces do not reveal which robot link safely bears load; and a visually close surface match can demand excessive velocity or torque. Correspondence confidence, cycle consistency, temporal tracking of each match, and a small human-editable anchor set would make failures auditable. A strong production pipeline would cache the learned map, optimize a sequence, validate it in dynamics, and either repair or reject references using contact impulse, torque margin, penetration, and closed-loop survival. That final dynamics gate is needed before “robot-ready” can mean more than geometrically plausible.
-
-### Control-stack accounting and a stronger evaluation protocol
-
-For Unified Motion Retargeting for Humanoids with Learned Point Cloud Correspondence, the decisive evidence is whether its named mechanism improves the claimed capability while preserving nominal balance, actuator feasibility, and behavior outside the targeted training subset.
-
-For reproducibility, the paper should expose the full causal interface: robot DoFs, proprioceptive variables and normalization, reference representation and future look-ahead, observation-history duration, perception inputs, actor/critic architecture, privileged variables, action parameterization, policy/physics/servo rates, PD gains, termination, rewards, curriculum, motion hours, environment transitions, randomization ranges and hardware limits. These details determine whether performance comes from anticipation, state estimation, reference curation, policy capacity or low-level stabilization. A joint-position target at 50 Hz with 1-kHz PD is a different controller from direct torque even if both are called whole-body policies.
-
-Evaluation should be decomposed by motion or task family and by failure source. Report survival/success, root and body pose/velocity error, contact timing and slip, global drift where relevant, joint-limit/torque/current and impact, action smoothness, fall and intervention, recovery, inference latency and sustained hardware reliability. Oracle-reference, oracle-state or privileged-teacher tests isolate observability; raw versus physics-cleaned data isolates supervision; MLP/history/Transformer or specialist/generalist comparisons isolate architecture. Equal environment steps and compute matter, as do repeated real trials rather than selected demonstrations.
-
-The most useful judgment asks what problem this design solves that a strong conventional tracker does not, and what it sacrifices. Better average tracking may hide lost rare skills, softened timing, higher power or unsafe contacts. The controller should estimate feasibility and uncertainty, reject or simplify references outside support, and retain an independent safety envelope for collision, torque and balance. Future work should test compound distribution shift—new motion plus payload, terrain, latency or disturbance—because isolated robustness factors are easier than the real whole-body deployment problem.
-
 ## UniAct: Unified Motion Generation and Action Streaming for Humanoid Robots
 
 Source: [arXiv paper](https://arxiv.org/abs/2512.24321).
@@ -2129,3 +2096,30 @@ Real servo performance depends on the complete discrete implementation. Current 
 Model compensation also changes over robot life. Gear friction and backlash evolve with wear, strain gauges drift, spring stiffness varies, lubrication and motor resistance depend on temperature, and cables create posture-dependent loads. Online estimators can update slow parameters, but aggressive adaptation during contact may confuse environmental load with actuator change. Parameter confidence and change-rate bounds should determine when adaptation is accepted. Fault isolation should distinguish sensor failure, saturation, unexpected contact and model mismatch because their safe responses differ.
 
 Learned whole-body policies make standardized actuator reporting more urgent. A simulation action expressed as desired joint position is converted through gains and motor limits into torque; a direct-torque policy assumes a different bandwidth and noise model. Papers should publish this action-to-hardware chain and train with measured torque-speed, delay, friction, compliance and saturation. Learned low-level residuals may compensate systematic error, but an analytic/passive baseline should remain available and residual authority should be bounded. Cross-platform transfer should compare not only joint layout and mass but servo dynamics. This actuator-level perspective explains why identical high-level networks can behave very differently on two nominally similar humanoids.
+
+
+## I-BFM: Reward-Conditioned Robust Humanoid Interaction via Unsupervised Reinforcement Learning
+
+I-BFM extends behavioral foundation models from body-only motion to coupled humanoid–object interaction. Instead of tracking one prescribed human–object trajectory or switching among task-specific policies, it learns one reward-addressable interaction space for carrying, pushing, kicking, getting up, goal reaching, motion tracking, style control, and multi-stage chaining. The central practical result is closed-loop recovery: the controller can abandon a failed nominal motion, regain balance or re-approach a displaced object, and continue the objective.
+
+### State, observation history, action, and RL architecture
+
+The privileged interaction state contains humanoid state, object pose and velocity, object-to-goal displacement and presence, plus bilateral hand-contact indicators, hand positions, and hand-to-object displacement vectors. The deployed actor receives a finite history (h_t=(o_{t-H:t},a_{t-H:t-1})) of proprioceptive observations, available object/contact measurements, and previous actions; the critic may see full simulation state during training. The paper does not use an onboard camera, LiDAR, VLM, or language tokens as the policy interface. Hardware operates in a motion-capture workspace, so object-state availability is an important deployment assumption. The output is joint-level targets executed by low-level PD control at 50 Hz on Unitree G1.
+
+Like BFM-Zero, I-BFM uses off-policy unsupervised reinforcement learning with forward–backward (FB) representations. The forward encoder models discounted future occupancy conditioned on state, action, and latent command; the backward encoder embeds reached states. Their factorization creates a Q-function for the reward induced by a latent. A new downstream reward is converted into a command by averaging backward state features weighted by reward and projecting to the latent sphere. The same actor then runs closed loop with no task-specific policy optimization. Because object and contact variables are part of the represented state, identical body poses can demand different actions when the box has shifted or contact has broken.
+
+Pretraining combines the interaction-aware FB loss with a style discriminator and auxiliary stabilization/safety objectives, jointly using object-interaction and ordinary locomotion/motion data. Carry, push, and kick data deliberately share one task ID, discouraging the policy from memorizing separate task labels. Motion tracking is another interface: backward features from reference interaction trajectories supply latent commands, while the policy retains freedom to recover rather than rigidly reproduce every pose.
+
+### LOGO and temporal structure
+
+The novel Local–Goal Objective Geometry Operator (LOGO) resolves a temporal ambiguity in latent conditioning. A baseline averages backward features across an eight-step future window, which can merge states requiring different immediate actions. LOGO instead derives a local target from the next state and a goal target from the state eight steps ahead. Both are mapped to tangent vectors on the spherical latent manifold: direction indicates how behavior should change, while magnitude represents geodesic distance. A shared actor is trained with both local and goal intents using a 4:3 loss ratio and a small residual weight, preserving immediate contact feasibility without losing long-horizon progress.
+
+This is not a transformer, diffusion model, or planner that rolls out explicit trajectories. It is a latent-conditioned RL actor with successor-state representations. Long-horizon task chaining is performed by changing reward specifications when subgoals finish; the motor policy remains the same. That distinction explains the low reaction latency and ability to deviate from a reference, but it also means an external task manager still decides when “push,” “carry,” or “place” is complete.
+
+### Results, judgment, and future work
+
+In simulated Carry, I-BFM reports 94.3% nominal success and 89.3% after a force-induced robot fall, compared with 1.3% for the cited planning baseline under that perturbation. Removing LOGO lowers success to 51.0%, a much larger change than its small effect on joint tracking error, supporting the claim that multi-timescale intent—not better imitation—is responsible. Hardware demonstrations use a 0.7 kg, 0.35 m cube and show retry after failed grasp/handling, recovery after robot or object disturbance, pushing, kicking, and push–carry–place chains without task-specific retraining or online replanning.
+
+The highlight is representing the physical consequence of whole-body action, not only the humanoid pose. That makes I-BFM closer to an interaction dynamics model while retaining direct reactive control. However, “zero-shot task” still depends on manually specified rewards, measurable object/contact state, training support, and external phase logic. One box geometry, motion-capture perception, qualitative hardware trials, and one-day-old preprint evidence are not yet enough to establish broad object or environment generalization. Comparisons also differ in native inference and training data, so matched-data baselines are needed.
+
+Next work should replace motion capture with egocentric RGB-D and tactile/contact estimation, report the exact observation history and network sizes, and measure latency from sensing through PD execution. Tests should vary object geometry, mass, friction, grasp type, clutter, and contact loss, with held-out interaction families rather than new target positions alone. A coverage/uncertainty estimator should reject rewards outside the learned occupancy, while a safety shield limits latent commands and contact forces. Automatic semantic reward generation from language or vision would make the prompt interface useful to higher-level agents, but only if grounded rewards cannot exploit unobserved state or unsafe shortcuts.

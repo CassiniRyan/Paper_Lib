@@ -476,7 +476,7 @@ The multi-camera setup—head plus two wrists—is an important part of reported
 
 Success should be reported against the number of unique teleoperated trajectories, not just rendered frames. That distinguishes genuine behavioral scaling from appearance augmentation. Tracking error conditioned on rollout length would quantify the consequence of command-only history. Finally, evaluating the same high-level policy with multiple low-level trackers could show whether OASIS data learn task intent or accidentally encode one controller's dynamics.
 
-## OmniContact: Chaining Meta-Skills via Contact Flow for
+## OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
 
 OmniContact proposes **contact flow** as the interface between planning and motor execution. At each control time it supplies sparse body-motion targets plus four binary end-effector contact states at nonuniform future offsets `{0,1,2,3,4,8,12,16,24,32,50}`. This carries near-term contact timing and longer-term intent without transmitting a dense whole-body trajectory.
 
@@ -583,110 +583,6 @@ Interaction meshes also offer an avenue for interpretability. Visualizing which 
 ### Comparative position
 
 OmniRetarget complements rather than replaces video-based systems. HDMI and HumanX reconstruct a small number of interactions and rely on RL to repair them; GRAIL constrains generated video with known scene assets; OmniRetarget concentrates on transferring and augmenting already recovered interactions across embodiments and environments. Its interaction mesh is especially useful when relative geometry carries the task. It is less decisive when success depends on hidden material properties or precise force. Pairing mesh preservation with a learned dynamics/contact feasibility score would cover both halves.
-
-## π0: A Vision-Language-Action Flow Model for General Robot Control
-
-Source: [arXiv 2410.24164](https://arxiv.org/abs/2410.24164).
-
-[π0](https://arxiv.org/abs/2410.24164) joins a 3B-parameter PaliGemma vision-language backbone with a roughly 300M-parameter action expert. Observation contains two or three current RGB views, a language command, and joint-angle proprioception. Images/language use the pretrained expert; state and noisy action tokens use the smaller robotics expert, with both interacting through shared transformer attention.
-
-It predicts a 50-step continuous action chunk. Conditional flow matching interpolates Gaussian noise toward demonstrated actions; action tokens use bidirectional attention and an MLP embeds action plus sinusoidal flow time. Ten Euler integration steps produce the chunk. The block-causal mask separates image/language, state, and action blocks so observation KV caches are reused during denoising. The PaliGemma side has width 2048/depth 18; the action expert uses width 1024 and MLP dimension 4096.
-
-Pretraining mixes about 10,000 hours over seven robot configurations and 68 dexterous tasks with OXE/DROID/Bridge data, followed by curated post-training. At 50 Hz the system replans after executing 25 actions (0.5 s); chunks are open-loop between calls because temporal ensembling hurt performance. Reported RTX 4090 latency is 73 ms onboard or 86 ms offboard.
-
-π0 is relevant here as a semantic/high-level action generator, not a native humanoid balance controller. Its training robots are manipulators/mobile platforms and its action semantics vary by embodiment. HAF and HOIST therefore wrap or adapt this class of model rather than directly sending its outputs to humanoid motors. Whole-body stability, contacts, falls, and high-rate disturbance rejection need an additional interface/controller.
-
-### What is genuinely important about π0
-
-π0's main contribution is the combination of broad vision-language pretraining with a continuous, high-dimensional action generator. Tokenizing robot actions as ordinary language symbols is awkward for smooth control; conditional flow matching instead models a distribution over entire continuous chunks. The smaller action expert preserves a robotics-specific computation path while still attending to semantic features from the large pretrained model. Block-causal caching is not merely an implementation detail: without reusing observation computation across flow steps, a model of this scale would be much harder to run interactively.
-
-Cross-embodiment pretraining is also meaningful, but it should not be confused with a single universal physical action space. Image and language features can transfer, while output dimensions, scaling, camera calibration, and action semantics remain robot-specific. The 50-step chunk improves temporal coherence and amortizes inference, yet executing half the chunk open-loop creates a 0.5-second interval in which unexpected contact cannot alter the high-level decision. This is acceptable for many tabletop motions and risky for balance-critical humanoid behavior.
-
-### Critical assessment for humanoid use
-
-π0 is a powerful prior for answering *what interaction should occur next*, but a poor direct answer to *which torques keep a humanoid safe now*. A useful humanoid adaptation should output a constrained task-space interface—hand/object goals, contact schedules, or motion latents—consumed by a high-rate whole-body controller. A learned feasibility critic could reject commands that violate reach, support, or collision constraints. RTC-style asynchronous replanning, force/tactile conditioning, and shorter adaptive chunks would improve contact responsiveness. Most importantly, the model needs substantial humanoid fall, recovery, locomotion, and whole-body-contact data; parameter scale cannot substitute for missing dynamics coverage.
-
-### Data, action normalization, and evaluation cautions
-
-Combining seven robot configurations requires embodiment-specific action dimensions and normalization. The common transformer can share semantic/visual structure, but each dataset's cameras, control frequency, gripper convention, and action scale remain potential shortcuts. Balanced sampling is essential: a large easy dataset can dominate gradients without improving the rare dexterous behaviors that motivate the model.
-
-Conditional flow matching represents a distribution rather than regressing the conditional mean, which is useful when a command admits multiple grasps. Ten Euler steps approximate the continuous flow; fewer steps reduce latency and may lower fidelity. The 50-step horizon supplies coherence, while replanning after 25 actions is the main feedback point. Evaluations should vary that execution length and include unexpected object motion to show when chunking becomes too open-loop.
-
-For humanoid comparison, success alone is insufficient. One should report command feasibility rejection, balance interventions, falls, peak contact force, and how often the low-level controller modifies the VLA output. Those measurements reveal whether π0 contributes valid semantic plans or merely supplies rough proposals repaired by a powerful downstream controller.
-
-### Comparative position
-
-π0 is a general manipulation foundation model included here because newer humanoid systems reuse its design principles or backbone class. Unlike MotionWAM, it does not claim a unified humanoid motion representation; unlike HAF, it does not explicitly stage body-part generation; unlike RTC, it does not solve asynchronous execution semantics. Its value is broad semantic and visuomotor pretraining. For a humanoid stack, the safest role is high-level proposal generation with a documented task-space contract, not direct 29-joint control.
-
-## π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities
-
-Source: [arXiv 2604.15483](https://arxiv.org/abs/2604.15483).
-
-[π0.7](https://arxiv.org/abs/2604.15483) extends the π-family from task-conditioned imitation toward a context-steerable generalist. Context may include language strategy/manner, visual subgoals, embodiment/task metadata, episode quality, and autonomous success/failure data. Conditioning on metadata allows one model to distill RL-trained specialists and also learn recovery states from suboptimal rollouts.
-
-The architecture accepts up to four 448×448 camera views—front, two wrists, optional rear—with as many as six historical frames per view sampled one second apart, plus up to three visual subgoal images. A MEM history encoder compresses each multi-frame stream to the token budget of one image. History and rear view are independently dropped with probability 0.3 for robustness. Proprioceptive current/history states are linearly projected as individual tokens rather than serialized as text.
-
-Block-causal attention gives bidirectional processing within observation and subgoal blocks, then causal processing for text/context. The continuous flow/action head remains related to earlier π models, while the richer context can request not merely “make espresso” but a particular stage, strategy, or quality regime.
-
-Reported emergent behavior includes unseen scenes, multi-stage appliances, cross-embodiment laundry folding, and performance approaching specialized policies. For humanoid work it is a promising semantic planner/data prior, but not evidence of whole-body balance. Its cameras and state histories assume embodiment-specific calibration; visual subgoals can be unreachable, and context labels may correlate with dataset artifacts rather than causal strategy. A humanoid still needs a feasible command abstraction and stabilizing controller.
-
-### Why steerable context is more than a larger prompt
-
-The notable shift from π0 to π0.7 is that context describes not only the task but also **how the task should be attempted**. Strategy, subgoal images, embodiment identity, and rollout quality can distinguish trajectories that share the same short language instruction. This provides a common mechanism for distilling specialist policies, incorporating autonomous trial data, and selecting among multiple valid approaches without training a separate model for each regime.
-
-The history design is also well matched to partial observability. Six frames sampled across several seconds can reveal whether a drawer is moving, whether an earlier grasp failed, or which stage has already completed. MEM compression prevents that benefit from multiplying the transformer token count by six. Multiple camera views reduce occlusion, while random view/history dropout prevents the model from treating every stream as mandatory.
-
-There is, however, a causal ambiguity. A “successful” metadata tag may correlate with a particular lab, camera, operator, or object appearance. The model can appear steerable while exploiting these incidental cues. Visual subgoals similarly express desired appearance but not whether that appearance is reachable under current contacts and dynamics. Large context capacity improves behavioral selection only when the dataset varies strategy independently of nuisance factors.
-
-### Evaluation and next steps for humanoids
-
-The strongest future experiment would hold task and scene fixed while intervening on strategy labels, then measure whether the requested physical strategy—not merely success—changes. Counterfactual metadata and deliberately balanced successes/failures would test this. For humanoids, π0.7 should generate feasibility-aware task-space subgoals rather than raw whole-body motor commands. Support-state tokens, contact history, and fall-risk estimates could be added alongside cameras. Calibrated uncertainty should trigger a safe lower-body behavior or human query when context is contradictory. Distilling the large model into a faster rolling-horizon planner would make those corrections available at contact-relevant rates.
-
-### Why the richer observation still leaves a control gap
-
-Four views, long image history, proprioceptive history, and visual subgoals give π0.7 far more context than a single-frame VLA. MEM compression is the enabling mechanism: it turns temporal evidence into a bounded token set rather than making attention cost grow linearly with every image. Independent history/view dropout is also a practical robustness measure because real robot streams fail asynchronously.
-
-Yet perception breadth does not imply physical feedback bandwidth. Widely spaced historical frames capture task stage and slow change, not millisecond contact transients. A visual subgoal can say what a successful future should look like but not what wrench or support transition safely reaches it. On a humanoid, those variables must enter through a lower-level controller or a richer action interface.
-
-Evaluation of emergent behavior should distinguish recombination from retrieval. Nearest-neighbor analysis over scenes, language, and action chunks can test whether “unseen” tasks are genuinely novel compositions. Cross-embodiment results should report how much adaptation data each projector/action head receives. Strategy steering is most convincing when the same observation yields measurably different, requested behaviors while controlling for dataset source and operator.
-
-### Comparative position
-
-π0.7 extends the generalist-policy axis rather than the humanoid-control axis. Its context can choose a strategy, while CEER, HANDOFF, OmniH2O, or a MotionWAM-like decoder realizes that strategy safely. Compared with language alone, visual subgoals describe desired state more densely; compared with symbolic plans, they remain ambiguous about contact and feasibility. The systems question is not whether π0.7 replaces a controller, but which physical interface best exposes its contextual competence.
-
-## Real-Time Execution of Action Chunking Flow Policies
-
-Real-Time Chunking (RTC) is an execution algorithm, not a learned policy. Standard action-chunk agents either block the robot during inference or keep executing an old chunk and then jump to a newly predicted one. RTC runs inference asynchronously while the 50 Hz control loop continues.
-
-When a new observation arrives, RTC estimates how many actions will inevitably execute before inference finishes. Those prefix actions are held fixed. A flow/diffusion sampler inpaints only the remaining suffix, conditioned on the frozen prefix, so the new chunk is dynamically continuous with what the robot actually did. The method uses the existing conditional flow vector field and requires no retraining.
-
-Experiments include an `H=8` chunk policy implemented with a four-layer MLP-Mixer and simulated delays up to four controller steps, plus dynamic Kinetix and real bimanual manipulation. A producer–consumer implementation separates the inference thread from the control loop and atomically replaces future actions when ready. Results show smoother action transitions and robustness even above 300 ms compared with naive chunk replacement.
-
-RTC matters disproportionately for humanoids because pausing, duplicating, or discontinuously switching commands can destabilize balance. It does not change observations, proprioception, or the base model's semantics; it only reconciles timing. If latency exceeds the remaining horizon, if the old prefix is already unsafe, or if the policy proposes a semantically wrong suffix, inpainting cannot solve the problem. The method also assumes the action representation is suitable for conditioning/inpainting.
-
-### The systems insight behind RTC
-
-Action latency is often treated as a throughput statistic, but RTC shows that it changes the semantics of a predicted chunk. By the time inference ends, the robot is no longer at the observation state from which the chunk was generated. Naively beginning at action zero repeats stale commands; jumping forward can introduce a discontinuity because the new policy did not condition on the exact actions executed during inference. Freezing the inevitable prefix makes generation consistent with the real timeline.
-
-This is especially elegant because the fix operates inside the generative sampler and requires no new demonstrations. It converts known future controls into an inpainting condition, using a capability flow/diffusion models already possess. The separation of inference and control threads also lets the actuator loop retain deterministic timing even when GPU latency varies.
-
-RTC is not a safety controller. It assumes latency can be predicted well enough to choose the fixed prefix, and it preserves that prefix even if a new observation reveals imminent danger. Very long or highly variable latency can consume the whole horizon. Moreover, smooth continuity in joint space does not imply continuity of contact force, center of pressure, or task intent.
-
-### Useful extensions
-
-An adaptive version should model a distribution over completion time and reserve a conservative prefix under jitter. A safety monitor could override frozen actions when state constraints or collision risk are violated, while a fallback stabilizer bridges until the next valid chunk. Humanoid evaluation should report falls, foot slip, contact impulse, and support-polygon margin—not only action smoothness and task success. Conditioning on predicted force or contact mode could make suffix inpainting physically continuous as well as numerically continuous. Finally, dynamically choosing chunk horizon based on latency and environmental uncertainty could avoid committing equally long into both free-space and contact-rich phases.
-
-### Assumptions an implementation must satisfy
-
-RTC needs synchronized timestamps, a reliable estimate of which actions have or will execute, and a sampler that can condition a suffix on fixed prefix values. Queueing or network delay must be included, not just neural inference time. If the actuator consumes commands faster or slower than assumed, the inpainted boundary is still misaligned. Atomic replacement is needed so the control thread never reads a partially updated chunk.
-
-There is also a representation assumption. Inpainting joint positions is straightforward numerically, while inpainting actions with hidden controller state or contact-mode semantics may not be. The fixed prefix must be expressed in precisely the same normalized action coordinates used during training. For hierarchical humanoids, RTC may be better applied to task-space motion chunks while a stabilizer owns high-frequency joints.
-
-A strong systems evaluation would replay measured latency traces with jitter, GPU contention, and dropped observations rather than fixed artificial delays. Comparing wall-clock throughput, deadline miss rate, discontinuity, and physical outcomes would show when RTC's extra sampler constraints are worthwhile. The method is simple conceptually, but correctness depends on careful control-software integration.
-
-### Comparative position
-
-RTC is orthogonal to almost every learning contribution here. It can wrap π0 chunks, HuMI diffusion, SUGAR commands, or tactile pose plans if the sampler supports prefix conditioning. It does not improve perception or motor competence, but prevents failures caused by disagreement between wall-clock inference and control time. Every chunked humanoid policy should compare blocking execution, naive asynchronous replacement, temporal ensembling, and RTC under the same measured latency trace.
 
 ## SplitAdapter: Load-Aware Humanoid Loco-Manipulation via Factorized Adaptation
 
@@ -897,3 +793,30 @@ The portable human-to-robot tactile alignment is also a likely source of distrib
 ### Comparative position
 
 WT-UMI complements vision-heavy systems by observing the variable they often infer poorly: physical contact. Unlike Thor, which produces large force without runtime wrench observation, WT-UMI explicitly predicts and regulates a future force profile. Unlike Weave, it does not require precise object geometry but needs tactile coverage and task initialization. The most capable future system would use vision for global scene and approach, tactile prediction for sustained interaction, and a force-aware whole-body controller for balance—switching emphasis continuously rather than treating modalities as separate phases.
+
+
+## I-BFM: Reward-Conditioned Robust Humanoid Interaction via Unsupervised Reinforcement Learning
+
+I-BFM extends behavioral foundation models from body-only motion to coupled humanoid–object interaction. Instead of tracking one prescribed human–object trajectory or switching among task-specific policies, it learns one reward-addressable interaction space for carrying, pushing, kicking, getting up, goal reaching, motion tracking, style control, and multi-stage chaining. The central practical result is closed-loop recovery: the controller can abandon a failed nominal motion, regain balance or re-approach a displaced object, and continue the objective.
+
+### State, observation history, action, and RL architecture
+
+The privileged interaction state contains humanoid state, object pose and velocity, object-to-goal displacement and presence, plus bilateral hand-contact indicators, hand positions, and hand-to-object displacement vectors. The deployed actor receives a finite history (h_t=(o_{t-H:t},a_{t-H:t-1})) of proprioceptive observations, available object/contact measurements, and previous actions; the critic may see full simulation state during training. The paper does not use an onboard camera, LiDAR, VLM, or language tokens as the policy interface. Hardware operates in a motion-capture workspace, so object-state availability is an important deployment assumption. The output is joint-level targets executed by low-level PD control at 50 Hz on Unitree G1.
+
+Like BFM-Zero, I-BFM uses off-policy unsupervised reinforcement learning with forward–backward (FB) representations. The forward encoder models discounted future occupancy conditioned on state, action, and latent command; the backward encoder embeds reached states. Their factorization creates a Q-function for the reward induced by a latent. A new downstream reward is converted into a command by averaging backward state features weighted by reward and projecting to the latent sphere. The same actor then runs closed loop with no task-specific policy optimization. Because object and contact variables are part of the represented state, identical body poses can demand different actions when the box has shifted or contact has broken.
+
+Pretraining combines the interaction-aware FB loss with a style discriminator and auxiliary stabilization/safety objectives, jointly using object-interaction and ordinary locomotion/motion data. Carry, push, and kick data deliberately share one task ID, discouraging the policy from memorizing separate task labels. Motion tracking is another interface: backward features from reference interaction trajectories supply latent commands, while the policy retains freedom to recover rather than rigidly reproduce every pose.
+
+### LOGO and temporal structure
+
+The novel Local–Goal Objective Geometry Operator (LOGO) resolves a temporal ambiguity in latent conditioning. A baseline averages backward features across an eight-step future window, which can merge states requiring different immediate actions. LOGO instead derives a local target from the next state and a goal target from the state eight steps ahead. Both are mapped to tangent vectors on the spherical latent manifold: direction indicates how behavior should change, while magnitude represents geodesic distance. A shared actor is trained with both local and goal intents using a 4:3 loss ratio and a small residual weight, preserving immediate contact feasibility without losing long-horizon progress.
+
+This is not a transformer, diffusion model, or planner that rolls out explicit trajectories. It is a latent-conditioned RL actor with successor-state representations. Long-horizon task chaining is performed by changing reward specifications when subgoals finish; the motor policy remains the same. That distinction explains the low reaction latency and ability to deviate from a reference, but it also means an external task manager still decides when “push,” “carry,” or “place” is complete.
+
+### Results, judgment, and future work
+
+In simulated Carry, I-BFM reports 94.3% nominal success and 89.3% after a force-induced robot fall, compared with 1.3% for the cited planning baseline under that perturbation. Removing LOGO lowers success to 51.0%, a much larger change than its small effect on joint tracking error, supporting the claim that multi-timescale intent—not better imitation—is responsible. Hardware demonstrations use a 0.7 kg, 0.35 m cube and show retry after failed grasp/handling, recovery after robot or object disturbance, pushing, kicking, and push–carry–place chains without task-specific retraining or online replanning.
+
+The highlight is representing the physical consequence of whole-body action, not only the humanoid pose. That makes I-BFM closer to an interaction dynamics model while retaining direct reactive control. However, “zero-shot task” still depends on manually specified rewards, measurable object/contact state, training support, and external phase logic. One box geometry, motion-capture perception, qualitative hardware trials, and one-day-old preprint evidence are not yet enough to establish broad object or environment generalization. Comparisons also differ in native inference and training data, so matched-data baselines are needed.
+
+Next work should replace motion capture with egocentric RGB-D and tactile/contact estimation, report the exact observation history and network sizes, and measure latency from sensing through PD execution. Tests should vary object geometry, mass, friction, grasp type, clutter, and contact loss, with held-out interaction families rather than new target positions alone. A coverage/uncertainty estimator should reject rewards outside the learned occupancy, while a safety shield limits latent commands and contact forces. Automatic semantic reward generation from language or vision would make the prompt interface useful to higher-level agents, but only if grounded rewards cannot exploit unobserved state or unsafe shortcuts.

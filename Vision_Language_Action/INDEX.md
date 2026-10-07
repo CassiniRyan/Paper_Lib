@@ -1,0 +1,15 @@
+# Vision_Language_Action
+
+PDF push tracking: OFF
+PDF LFS pull: OFF
+PDF count: 0
+
+## Papers
+
+- Efficient-WAM: A 1B-Parameter World-Action Model with Low-Cost Future Imagination
+- HAF: Adapting Generalist VLAs to Humanoid Whole-Body Loco-manipulation via Hierarchical Action Flow and Spectral Latent RL
+- MotionWAM: Towards Foundation World Action Models for Real-Time Humanoid Loco-Manipulation
+- OASIS: From Simulation Data Collection to Real-World Humanoid Loco-Manipulation
+- TANGO: Humanoid Navigation in Cluttered Environments with a Whole-Body Vision-Language-Action Model
+- π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities
+- π0: A Vision-Language-Action Flow Model for General Robot Control

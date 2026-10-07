@@ -433,3 +433,37 @@ The paper is a clean, practical extension of AMP. It isolates where mode special
 The gate can nevertheless chatter around the threshold because no hysteresis or temporal filtering is described. A crouched but intentional locomotion pose may be routed as recovery, while an upright early recovery state may receive gait reward too soon. Projected gravity alone cannot distinguish sitting, kneeling, bracing against a wall, or falling on stairs. The reference set also provides little coverage of lateral gait, turning, variable get-up contacts, or terrain, and “fast mode” remains an explicit operator safety decision even though gait execution is unified.
 
 A next version should study soft probabilistic routing or hysteresis, learn the gate under interpretability constraints, and add contact/terrain context. More recovery examples should cover obstacles and asymmetric falls. Evaluation should report threshold sensitivity, repeated fall/recovery cycles, impacts and motor limits, and transitions near the gate—not only successful showcase sequences. A particularly useful test would compare one actor with routed priors against a genuinely matched multi-controller FSM on reliability, memory, latency, and edge cases.
+
+## Real-Time Execution of Action Chunking Flow Policies
+
+Real-Time Chunking (RTC) is an execution algorithm, not a learned policy. Standard action-chunk agents either block the robot during inference or keep executing an old chunk and then jump to a newly predicted one. RTC runs inference asynchronously while the 50 Hz control loop continues.
+
+When a new observation arrives, RTC estimates how many actions will inevitably execute before inference finishes. Those prefix actions are held fixed. A flow/diffusion sampler inpaints only the remaining suffix, conditioned on the frozen prefix, so the new chunk is dynamically continuous with what the robot actually did. The method uses the existing conditional flow vector field and requires no retraining.
+
+Experiments include an `H=8` chunk policy implemented with a four-layer MLP-Mixer and simulated delays up to four controller steps, plus dynamic Kinetix and real bimanual manipulation. A producer–consumer implementation separates the inference thread from the control loop and atomically replaces future actions when ready. Results show smoother action transitions and robustness even above 300 ms compared with naive chunk replacement.
+
+RTC matters disproportionately for humanoids because pausing, duplicating, or discontinuously switching commands can destabilize balance. It does not change observations, proprioception, or the base model's semantics; it only reconciles timing. If latency exceeds the remaining horizon, if the old prefix is already unsafe, or if the policy proposes a semantically wrong suffix, inpainting cannot solve the problem. The method also assumes the action representation is suitable for conditioning/inpainting.
+
+### The systems insight behind RTC
+
+Action latency is often treated as a throughput statistic, but RTC shows that it changes the semantics of a predicted chunk. By the time inference ends, the robot is no longer at the observation state from which the chunk was generated. Naively beginning at action zero repeats stale commands; jumping forward can introduce a discontinuity because the new policy did not condition on the exact actions executed during inference. Freezing the inevitable prefix makes generation consistent with the real timeline.
+
+This is especially elegant because the fix operates inside the generative sampler and requires no new demonstrations. It converts known future controls into an inpainting condition, using a capability flow/diffusion models already possess. The separation of inference and control threads also lets the actuator loop retain deterministic timing even when GPU latency varies.
+
+RTC is not a safety controller. It assumes latency can be predicted well enough to choose the fixed prefix, and it preserves that prefix even if a new observation reveals imminent danger. Very long or highly variable latency can consume the whole horizon. Moreover, smooth continuity in joint space does not imply continuity of contact force, center of pressure, or task intent.
+
+### Useful extensions
+
+An adaptive version should model a distribution over completion time and reserve a conservative prefix under jitter. A safety monitor could override frozen actions when state constraints or collision risk are violated, while a fallback stabilizer bridges until the next valid chunk. Humanoid evaluation should report falls, foot slip, contact impulse, and support-polygon margin—not only action smoothness and task success. Conditioning on predicted force or contact mode could make suffix inpainting physically continuous as well as numerically continuous. Finally, dynamically choosing chunk horizon based on latency and environmental uncertainty could avoid committing equally long into both free-space and contact-rich phases.
+
+### Assumptions an implementation must satisfy
+
+RTC needs synchronized timestamps, a reliable estimate of which actions have or will execute, and a sampler that can condition a suffix on fixed prefix values. Queueing or network delay must be included, not just neural inference time. If the actuator consumes commands faster or slower than assumed, the inpainted boundary is still misaligned. Atomic replacement is needed so the control thread never reads a partially updated chunk.
+
+There is also a representation assumption. Inpainting joint positions is straightforward numerically, while inpainting actions with hidden controller state or contact-mode semantics may not be. The fixed prefix must be expressed in precisely the same normalized action coordinates used during training. For hierarchical humanoids, RTC may be better applied to task-space motion chunks while a stabilizer owns high-frequency joints.
+
+A strong systems evaluation would replay measured latency traces with jitter, GPU contention, and dropped observations rather than fixed artificial delays. Comparing wall-clock throughput, deadline miss rate, discontinuity, and physical outcomes would show when RTC's extra sampler constraints are worthwhile. The method is simple conceptually, but correctness depends on careful control-software integration.
+
+### Comparative position
+
+RTC is orthogonal to almost every learning contribution here. It can wrap π0 chunks, HuMI diffusion, SUGAR commands, or tactile pose plans if the sampler supports prefix conditioning. It does not improve perception or motor competence, but prevents failures caused by disagreement between wall-clock inference and control time. Every chunked humanoid policy should compare blocking execution, naive asynchronous replacement, temporal ensembling, and RTC under the same measured latency trace.
