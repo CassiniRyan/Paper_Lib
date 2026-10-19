@@ -160,8 +160,7 @@ Total: 140 PDF files
 - Safety-Critical Whole-Body Control for Humanoid Robots via Input-to-State Safe Control Barrier Functions
 - Scaling Behavior Foundation Model for Humanoid Robots
 - SoftMimic: Learning Compliant Whole-body Control from Examples
-- Zero-Shot Whole-Body Humanoid Control via Behavioral Foundation Models
-- 机器人关节伺服系统力矩控制技术综述
+- Zero-Shot Whole-Body Humanoid Control via Behavioral Foundation Models 
 
 ## List 9: Human Motion Reconstruction / Human Motion Recovery (2 entries)
 

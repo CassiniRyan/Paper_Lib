@@ -58,4 +58,3 @@ ViBe: Visual Behavior Adaptation for Perceptive Humanoid Whole-Body Control
 Weave: Learning Whole-Body Dexterous Loco-Manipulation from Human-Object Interactions
 WT-UMI: Tactile-based Whole-Body Manipulation via Force-Supervised Contact-Aware Planning
 Zero-Shot Whole-Body Humanoid Control via Behavioral Foundation Models
-机器人关节伺服系统力矩控制技术综述
