@@ -726,3 +726,169 @@ Training uses only 20–50 demonstrations per simulated task and 50 Meta Quest 3
 The highlight is not merely speed; it is matching model horizon to sensor physics. Slow appearance change and fast contact transients should not receive identical prediction targets. The compact direct-flow design also challenges the assumption that useful world modeling requires a giant video foundation model. However, it remains a per-task imitation policy trained from modest demonstrations, not a broadly pretrained world model. The fixed wrist camera and gripper tactile array cover local manipulation but do not establish transfer across viewpoints, tools, sensors, robots, or unseen task semantics. Predicting latent futures may improve control without yielding an interpretable or rollout-accurate dynamics model.
 
 The strongest next tests would hold data and backbone capacity constant against a non-predictive flow policy, evaluate sensor dropout and tactile calibration drift, quantify force safety rather than success alone, and test whether predicted tactile latents detect slip or impending jamming before failure. Longer closed-loop tasks need uncertainty estimates and a rule for aborting when imagined futures conflict with observations. Cross-sensor pretraining, variable-delay fusion, language/task conditioning, and adaptation to unseen objects would determine whether Agile-WAM is a reusable tactile world-action model or an excellent high-frequency contact policy.
+
+
+## ScaRF-SLAM: Scale-Consistent Reconstruction with Feed-Forward Models and Classical Visual SLAM
+
+Source: [RA-L 2026 project and code](https://github.com/ori-drs/ScaRF-SLAM).
+
+ScaRF-SLAM addresses a practical mismatch between geometric foundation models and robot SLAM. Feed-forward reconstruction models can predict dense geometry from a small image batch, but their camera estimates and depth scale may drift between batches; classical visual SLAM tracks cameras reliably and closes loops, but normally produces sparse or less complete maps. ScaRF-SLAM deliberately separates these responsibilities: an established visual or visual-inertial SLAM system owns low-latency pose estimation, while a geometric foundation model supplies dense depth and local reconstruction.
+
+### Inputs, mapping architecture, and outputs
+
+The system accepts RGB from monocular, stereo, or multi-camera rigs and can use inertial measurements when the selected SLAM backend supports them. Classical backends such as OpenVINS or ORB-SLAM3 produce camera poses and loop-closure corrections. Images are grouped into local submaps and passed through a feed-forward geometric model for depth/point prediction. Rather than trusting the model's independently inferred scale, lightweight optimization aligns each reconstruction to the metric or internally consistent SLAM trajectory and maintains consistency across overlapping frames and submaps. Loop-closure updates can therefore correct the global map without asking the learned model to solve tracking.
+
+The output is a dense, scale-consistent 3-D reconstruction registered to the SLAM frame, not navigation commands or robot actions. The accompanying ScaRF dataset uses a front fisheye camera and IMU mounted with a LiDAR-inertial mapping system; accurate reference trajectories come from registering LiDAR scans to a terrestrial laser-scanner map. Evaluations also cover outdoor datasets and different camera configurations, which is important evidence for backend modularity.
+
+### Assessment and limitations
+
+The strongest design decision is refusing to replace a reliable estimator with a foundation model merely because the learned model produces richer geometry. Scale is treated as a state-estimation constraint, and reconstruction as a separate learned capability. This makes failure attribution clearer and lets improvements in either subsystem transfer independently.
+
+The price is a multi-component stack: image calibration, SLAM drift, submap association, learned depth bias, and scale optimization can each corrupt the result. Dense visual geometry is not automatically traversability, semantics, or collision-safe free space. Future work should report online latency and memory growth on embedded hardware, propagate pose/depth uncertainty into the map, handle dynamic objects explicitly, and test whether reconstruction quality actually improves downstream planning rather than only geometric metrics.
+
+
+## World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+
+Source: [arXiv 2609.02542](https://arxiv.org/abs/2609.02542).
+
+WM-LOCO targets terrain where a single locally reasonable foot placement can make the rest of the route impossible: gaps, stepping stones, and narrow stair treads. A matched reactive PPO policy sees the current terrain but often commits too early. WM-LOCO jointly trains a recurrent predictive model so the actor receives a compact summary of likely future observations and rewards before selecting the next joint action.
+
+### Observation history, world model, and control output
+
+The deployed input combines five frames of proprioceptive history, commanded base-frame velocity, and one head-mounted depth image from an onboard Intel RealSense D435. There are no explicit foothold labels or external map. A recurrent world-model pathway predicts near-future observation/reward information and exposes its hidden feature to a mixture-of-experts actor–critic. The actor outputs whole-body joint targets for the Unitree G1; PPO, an adversarial motion prior, normal locomotion rewards, and terrain-specific contact shaping train control. The baseline uses the same reward, perception stream, proprioceptive encoder, MoE policy, and training budget but removes the predictive pathway, making the comparison unusually clean.
+
+Training uses thousands of parallel IsaacLab environments with procedural gaps, stones, and stairs. On held-out terrain, the world-model policy succeeds on gap and stepping-stone settings where the matched baseline reports zero success, while matching stair success with smoother pelvis motion and more efficient strides. The same onboard policy traverses all three physical terrain classes with 93.3% average success.
+
+### What is novel and what remains uncertain
+
+The useful idea is not a long pixel rollout but a predictive recurrent state optimized jointly with the motor policy. It offers anticipation without constructing an explicit height map or committing to a footstep planner. The principal ambiguity is whether gain comes from prediction or simply extra recurrent capacity; auxiliary-loss and capacity-matched recurrent ablations are essential. Terrain-specific shaping also supplies privileged training knowledge even though deployment has no foothold labels.
+
+Future work should expose prediction horizon and calibration, test depth dropout/latency and moving or deformable supports, and compare with explicit foothold planning at equal compute. A safety layer should reason about support uncertainty before committing to irreversible contacts, and the model should report when the next feasible foothold lies outside its visual/history support.
+
+
+## Reflex: Visually Grounded Reactive Humanoid Control
+
+Source: [arXiv 2610.12772](https://arxiv.org/abs/2610.12772).
+
+Reflex studies a compact but demanding reactive task: catching a human-thrown box with a Unitree G1. Success requires whole-body balance, estimating a moving object's flight from partial observations, and reacting within roughly one second. The paper avoids training vision and motor control end-to-end from scratch; three stages are linked by an explicit latent representation of object dynamics.
+
+### Three-stage perception-to-action design
+
+First, a privileged state-based policy is trained with reinforcement learning to coordinate stepping, torso motion, and both arms for catching. It observes accurate robot and box state during this stage and outputs whole-body joint targets. Second, a dynamics inference module learns to estimate the task-relevant box representation from delayed, incomplete observation sequences, teaching the controller to tolerate the information pattern expected from cameras. Third, an egocentric RGB-D encoder predicts that same representation from temporal visual history while the trained whole-body controller remains fixed.
+
+At deployment the system uses onboard egocentric RGB-D plus robot state; it does not receive box pose, velocity, motion-capture data, or fiducial markers. Temporal history is essential because a single frame cannot identify velocity or time-to-contact. This modular latent also supplies direct losses for visual estimation instead of asking sparse catch reward to train the entire stack.
+
+Simulation success is 85.7% from egocentric RGB-D versus 87.9% with privileged box observations. Removing temporal vision lowers success by 35.6 and 39.8 percentage points for centered and laterally offset throws. On real G1 hardware, reported catch success is 65% at 2.5 m and 40% at 5 m, corresponding to 76% and 59% of measured human catcher performance under the same setups.
+
+### Assessment and next work
+
+The highlight is architectural responsibility: motor learning, partial-observation dynamics inference, and visual grounding are tested separately, yet share a compact interface. This makes the vision gap measurable. Catching boxes is still a narrow distribution, and RGB-D latency, depth failure, object shape, spin, and collision force can dominate outside it. A successful catch does not by itself establish safe contact.
+
+Future work should quantify camera-to-action latency and its variance, predict calibrated trajectory uncertainty, adapt the reaching/catching strategy when uncertainty is high, and include tactile/force feedback after first contact. Tests with different objects, occlusion, moving robot bases, bystanders, and abort/deflect actions would better establish general reactive humanoid control.
+
+
+## PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+
+Source: [arXiv 2610.12558](https://arxiv.org/abs/2610.12558).
+
+PanTact teaches a humanoid to use arms, knees, torso, or other body surfaces as manipulation contacts. The central cross-embodiment interface is a sparse contact goal: where and when contact should occur matters more than matching the demonstrator's exact joint pose. Human demonstrations are robot-free, and the deployed Unitree G1 does not require a full tactile skin.
+
+### Wearable data, visual policy, and controller
+
+The wearable system combines a head-mounted ZED stereo camera, two wrist fisheye cameras, Vive tracking of head/wrists/contact patches, bimanual UMI grippers, and modular 44×44 mm force-sensitive-resistor tiles. Contact electronics stream up to 16 channels at 1 kHz; all modalities are aligned to 60 Hz. Each contact record stores a binary state and 3-D world position. Adaptive baselines reduce drift sensitivity, while modular magnetic patches can cover different human body regions.
+
+A contact-predictive visuomotor policy consumes body-masked egocentric 3-D observations, wrist images, proprioceptive/history context and predicts end-effector trajectories plus sparse contact goals. At the low level, a PPO-trained sparse-contact tracker receives proprioception and future goal slots containing 3-D root-frame points, contact flags and validity masks. It runs at 50 Hz and outputs 29 joint-position targets for PD control. Hindsight labeling samples achievable contact points from successful simulated rollouts, allowing the controller to learn diverse body contacts without dense human-to-robot pose correspondence.
+
+Hardware tasks demonstrate body support, pushing, sweeping, and load sharing. The important novelty is that tactile sensing is used to supervise human demonstration and desired robot contact, even though runtime robot contact is realized through state/visual planning rather than equivalent skin sensors.
+
+### Assessment and future work
+
+PanTact unifies sensing, representation, and control around contact. Yet binary sparse goals omit desired force, tangential slip, contact patch orientation, compliance, and pain/safety constraints. Visual prediction may request a geometrically reachable but dynamically unsafe body contact, and the controller's simulated hindsight labels inherit simulator collision assumptions.
+
+Next work should add desired wrench/compliance, uncertainty-aware contact selection, runtime tactile verification, and human-safety limits. Generalization should cover unseen body surfaces, deformable objects, clothing, calibration shifts, and tasks where contact must be released—not merely achieved.
+
+
+## Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+
+Source: [arXiv 2609.35450](https://arxiv.org/abs/2609.35450).
+
+Uni-VLaT extends pretrained vision-language-action policies with distributed whole-body touch. Vision and proprioception can miss occluded or spatially distributed contact—someone taps the back, the torso supports an object, or a surface pushes a limb. The method adds a tactile pathway whose representation is trained both to generate actions and to predict future tactile, proprioceptive, and visual features.
+
+### Multimodal predictive adaptation
+
+Inputs combine language instruction, camera observations, robot proprioception, and spatial tactile measurements across the humanoid body. A tactile encoder produces tokens that are fused into the pretrained VLA after the diffusion-transformer context has formed, limiting disruption of the original vision/language prior. The action head retains the backbone's continuous chunk representation. Auxiliary heads predict absolute future tactile, proprioceptive, and visual latents from the contextualized tactile state, creating a tactile-anchored representation of how physical interaction is likely to evolve.
+
+The predictive targets make this more than concatenating another sensor. Ablations show that contextualized tactile prediction and absolute future targets outperform delta-only prediction, plausibly because sustained contact would disappear in a change representation. The adapter is evaluated with two pretrained VLA backbones, Isaac GR00T and π0.5, across five physical tasks involving touch-triggered walking, sustained interaction, human contact, and loco-manipulation.
+
+Average hardware success is 75%, compared with 32% without tactile input and 68% with touch but without predictive supervision. Table Sweeping improves by 30 points on both backbones; Back-Tap Walking improves by 85–90 points. These are large task-specific gains, though the main evaluation has 20 rollouts per task and many ablations use ten.
+
+### Assessment and safety
+
+The key contribution is making touch a predictive world signal instead of only a reactive observation. It belongs to VLA, perception, WAM, and whole-body interaction because language/vision select behavior while tactile futures shape execution. Limitations include sensor calibration, coverage, latency, skin durability, and the possibility that a learned action exploits high pressure to satisfy task reward.
+
+Future work should report contact-force/pressure limits, sensor dropout and drift, temporal synchronization, uncertainty, and unseen contact locations. Cross-robot tactile geometry and safe fallback when touch contradicts vision are decisive tests of whether the adaptation is general or hardware-specific.
+
+
+## Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data
+
+Source: [arXiv 2610.09117](https://arxiv.org/abs/2610.09117).
+
+Workhorse learns contact-rich whole-body tasks from robot-free human demonstrations without dense humanoid retargeting. It separates semantic/visual planning from physical execution through a sparse five-link interface: torso, both wrists, and both feet. Human and robot share those task-relevant targets even when their full joint configurations differ.
+
+### Human data, visual planner, and RL tracker
+
+A demonstrator wears five motion trackers on chest, hands, and shoes plus one chest RGB camera. Poses and video are synchronized at 60 Hz; the reported datasets contain 2.2 hours of box sorting, 1.2 hours of suitcase interaction, and 13 minutes of box catching. No object markers or robot teleoperation are required. Offline visual editing removes the human body and renders the robot into each training frame to reduce the human-to-robot appearance gap.
+
+The flow-matching visual planner takes four recent egocentric images and nine previous five-link samples spanning one second. It generates a 1.16-second chunk of future five-link targets and replans at 5 Hz. A reinforcement-learning whole-body tracker reads the next 0.2 seconds of those targets plus robot proprioception and outputs joint commands. Planner and tracker train separately on the same human pose stream rather than a retargeted dense robot motion.
+
+Each component is trained against the other's deployment errors. Tracker commands receive sawtooth drift and yaw perturbations that imitate planner/replanning error; planner training includes histories produced by imperfect tracking rather than only clean demonstrations. This cross-augmentation is central to closed-loop robustness.
+
+Real G1 tasks include hand-and-kick box sorting, catching a thrown box, and toppling/climbing a suitcase, with recovery after pushes or object removal. In a simulated room, box sorting succeeds in 77% of nominal episodes and 64% under 40 N·s pushes. Retraining on the same demonstrations for a second humanoid gives 83% without pushes.
+
+### Assessment
+
+The five-link contract is the highlight: it preserves task geometry while allowing the robot to choose feasible joint coordination. Yet tasks use separate planner/tracker pairs, data come from one demonstrator and room, and body replacement may not reproduce robot camera occlusion or dynamics. Five-link targets also omit desired contacts and forces.
+
+Future work should share one multi-task planner, add object/tactile state, test new rooms and demonstrators, and expose uncertainty when generated targets are unreachable. End-to-end latency and safety during planner/tracker disagreement deserve explicit measurement.
+
+
+## P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+
+Source: [arXiv 2610.15833](https://arxiv.org/abs/2610.15833).
+
+P-BFM extends behavioral foundation models to terrain without requiring a demonstration for every behavior–terrain pair. It factorizes command semantics into terrain-invariant intent and terrain-conditioned realization: the same “walk,” goal, or reward latent should lead to different foot height, stride, posture, and contacts when the local geometry changes.
+
+### Forward–backward intent and perceptive execution
+
+A forward–backward representation learns a shared latent intent space through unsupervised reinforcement learning. Motion references, target states, and reward functions can all be mapped into this space without embedding terrain into the command itself. A perceptive policy then consumes the intent, proprioceptive history, and onboard terrain observation/depth to produce whole-body joint targets. The training critic can use privileged simulation geometry, while physical deployment uses onboard depth on Unitree G1.
+
+Pure latent commands often preserve a local motion pattern but lose precise global displacement. Explicit Root Instructions (ERI) therefore carry desired planar velocity/heading separately from the behavior latent. The latent describes local style and whole-body intent; ERI controls global transport; terrain perception modifies how contacts realize both. This division lets one fixed intent yield high steps, shortened stride, crouching, or alternate footholds without terrain-matched demonstrations.
+
+The frozen policy supports motion tracking, goal reaching, reward inference, teleoperation, and recovery across challenging terrain. Reported comparisons show improved motion fidelity, root-control precision, and perturbation recovery over nonperceptive or less structured baselines, with zero-shot G1 transfer.
+
+### Assessment and future work
+
+The strongest contribution is avoiding a combinatorial dataset of every motion on every terrain. Separating global root progress from latent behavior also repairs a concrete BFM weakness. Still, “terrain-invariant” intent is an inductive goal rather than guaranteed disentanglement; terrain and behavior may interact in ways that require changing semantics, not merely realization. Depth-based local geometry does not capture friction, compliance, moving supports, or upper-body obstacles.
+
+Future work should test novel behavior–terrain compositions, remove or corrupt ERI, quantify latent leakage of terrain, and add uncertainty-aware fallback. Tactile/contact feedback and semantic perception are needed where identical geometry has different physical affordance.
+
+
+## PGMT: Perceptive General Motion Tracking for Humanoid Robots
+
+Source: [arXiv 2609.08511](https://arxiv.org/abs/2609.08511).
+
+PGMT asks how one general motion tracker can preserve reference intent while adapting to terrain that makes the literal reference infeasible. It first learns broad flat-ground tracking and recovery, then introduces perception through motion-conditioned terrain glimpses and a terrain-aware relaxation mechanism rather than training a separate policy for each locomotion skill.
+
+### Motion-conditioned perception and relaxed tracking
+
+The deployed policy receives humanoid proprioceptive/history features, a kinematic motion reference, and local terrain sensing from onboard depth. Instead of encoding the entire terrain map uniformly, motion-conditioned glimpses select regions relevant to the commanded body/foot trajectory. This focuses capacity on upcoming contacts and clearance while avoiding irrelevant geometry. A general tracking-and-recovery prior provides stable whole-body execution and fall recovery.
+
+Terrain-aware relaxation lets the policy deviate from exact pose or root targets when geometry demands it, while preserving higher-level motion intent. The actor outputs joint-position targets for Unitree G1; privileged terrain/state can be used by training critics or auxiliary targets, but deployment uses onboard perception. Motion and terrain are sampled independently in training, testing whether the controller composes them rather than memorizing matched pairs.
+
+Zero-shot hardware demonstrations cover terrain-adaptive walking, dynamic whole-body motions, teleoperation, and recovery over obstacles up to 37 cm. This breadth is the main result: a single controller modifies step height, posture, and contact timing while retaining the requested upper-body or stylistic motion.
+
+### Assessment
+
+Selective glimpses are a strong answer to the question “where should the policy look for this motion?” and relaxation acknowledges that exact tracking can be unsafe. The difficult issue is deciding what may be relaxed: too little causes collision/fall, while too much changes task semantics. Local depth also misses friction, compliant ground, dynamic obstacles, and terrain behind occlusion.
+
+Future work should expose relaxation magnitude and priority to the user, calibrate terrain uncertainty, compare against full-map encoders at equal capacity, and test adversarial motion–terrain conflicts. Contact/tactile sensing and semantic collision constraints would help protect task-critical hands or carried objects while feet adapt.

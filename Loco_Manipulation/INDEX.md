@@ -30,3 +30,11 @@ PDF count: 18
 - VAIC: Vision-Guided Humanoid Agile Object Interaction Control via Decoupled Commands
 - Weave: Learning Whole-Body Dexterous Loco-Manipulation from Human-Object Interactions
 - WT-UMI: Tactile-based Whole-Body Manipulation via Force-Supervised Contact-Aware Planning
+- InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+- HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+- HULK: Learning Whole-Body Forceful Loco-Manipulation for Humanoids
+- Reflex: Visually Grounded Reactive Humanoid Control
+- PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+- VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+- Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+- Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data

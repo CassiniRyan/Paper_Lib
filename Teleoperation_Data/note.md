@@ -605,3 +605,125 @@ For data collection, X-OP records raw operator goals plus optimized feasible com
 Technical feasibility does not establish teleoperation usability. X-OP should measure operator training time, perceived responsiveness, correction count, task completion, path/hand error, fatigue, and preference as MPC weights or update rates change. A conservative optimizer may save energy and prevent collision while feeling unresponsive; an aggressive one may track hands closely but force frequent balance corrections. Human-factor results should therefore accompany robot metrics.
 
 A fair learned-retargeter comparison uses the same XR stream, low-level controller, collision model, task, and compute platform. Report tracking, completion, collisions, energy, latency distribution, OOD obstacle/payload behavior, and recovery after deliberate model mismatch. Per-frame IK isolates the value of horizon prediction, while oracle dynamics isolates model error. Cross-morphology experiments should include platforms with genuinely different constraints, not only altered humanoid proportions. These tests would show when online optimization's explicit feasibility justifies its cost and when an amortized learned controller is the better interface.
+
+
+## InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+
+Source: [arXiv 2610.06850](https://arxiv.org/abs/2610.06850).
+
+InterMimicGen turns physics-based imitation into a data flywheel. Human–object interaction captures are diverse but sparse, use incompatible schemas, and are not directly executable by a humanoid. The system first consolidates sources such as InterAct and HiPHI, retargets them while preserving body coordination and hand–object relations, then trains one dexterous whole-body tracker. Crucially, successful robot execution becomes the validator and parent data for another augmentation round.
+
+### Retargeting, tracker, and self-evolution loop
+
+Contact-aware retargeting proceeds in stages: a grasp-shaping stage emphasizes finger opposition and hand–object structure, followed by geometric cleanup that reduces penetration while preserving contacts. The resulting references cover different objects, robot bodies, and hand configurations. A physics-based generalist tracking policy observes robot state plus reference motion and produces joint targets for a humanoid with dexterous hands; its feedback dynamics determine whether the nominal kinematic reference is genuinely executable.
+
+Each evolution round makes small task-preserving edits. Object trajectories are translated or rotated; body style can change through crouch, stance width, toe angle, or arm-nullspace adjustments. New proposals are blended from validated parents, the tracker is fine-tuned on them, and simulated rollouts are accepted only when they reach the reference end without falling, satisfy smoothness checks, and preserve the task outcome. Accepted variants seed the next round. This policy-in-the-loop mechanism is the main novelty: a frozen tracker can filter only near its initial competence, while an adapting tracker expands the reachable neighborhood.
+
+The seed collection contains 16,059 consolidated motions, and the reported iterative process grows executable coverage by roughly 150× over five rounds. Experiments span Unitree G1 variants with different hands, Booster robots, and other embodiments, with physical deployments showing that the generated references are not purely simulator artifacts.
+
+### Assessment and future work
+
+The highlight is coupling data generation and motor competence rather than assuming either is fixed. Yet the validator is partly self-referential: success under the current tracker may reject valuable motions that another controller could learn and accept variants that exploit its particular reward or simulator. Small local edits can compound without proving semantic diversity. Future evaluations should use independent task metrics, held-out trackers and physics engines, contact-force limits, dataset deduplication, and explicit provenance across generations. Uncertainty-aware acceptance and human review for rare contact modes would reduce the chance that the flywheel scales its own blind spots.
+
+
+## HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+
+Source: [arXiv 2609.34674](https://arxiv.org/abs/2609.34674).
+
+HOI-Retarget treats contact—not body-pose similarity—as the invariant that should survive human-to-robot transfer. Its input is a human motion, object trajectory and geometry, plus labeled contact intervals/locations. Its output is a robot-compatible whole-body reference and aligned object interaction that can be used as tracking data; it is an offline kinematic optimizer, not a deployed perception or control network.
+
+### Object-frame contacts and windowed optimization
+
+An initial inverse-kinematics pass maps the human pose to the target robot and scales the object/trajectory according to embodiment size. Every active human contact is represented as a target point in the object's coordinate frame, so it remains attached to the same surface region when the object moves or changes scale. A windowed nonlinear program then balances body tracking, palm-to-contact error, foot support, smoothness, and joint limits while holding the task's object motion consistent. Pinocchio supplies robot kinematics and CasADi/IPOPT solve the constrained optimization. Contact refinement tools allow noisy monocular-video annotations to be corrected, and the formulation extends to several robots manipulating a shared object.
+
+On the common OMOMO evaluation, the reported mean hand contact-point gap is 0.5 cm versus 18.3 cm for OmniRetarget, with 33.7 seconds versus 156.2 seconds compute per clip. The evaluation covers 13 object categories and thousands of clips, and the released dataset/code support Unitree G1 and H2. Dynamic refinement through RL- or sampling-based execution retains much of the contact advantage.
+
+### Judgment and limitations
+
+The method is compelling because task success in HOI often depends on touching the correct object surface, while low joint error can still miss the handle entirely. Expressing targets in the object frame also makes size augmentation principled. However, kinematic contact is not force feasibility: correct palm placement may demand impossible torque, friction, timing, or grasp closure. Results exclude clips that fail preprocessing/optimization, and annotation quality remains important.
+
+Next work should jointly optimize contact forces and balance, report failure rates before filtering, attach uncertainty to reconstructed contacts, and validate on unseen object topology rather than scaled familiar meshes. Closed-loop controllers should be tested against object displacement so the reference does not become brittle once physical execution diverges.
+
+
+## OmniHOI: Dexterous Hand-Object Interaction from Monocular Human Video
+
+Source: [arXiv 2610.10855](https://arxiv.org/abs/2610.10855).
+
+OmniHOI converts a monocular RGB video of human hand–object interaction into an executable trajectory for dexterous robot hands. It is best viewed as a demonstration-reconstruction and retargeting pipeline, not a visuomotor policy: video is processed offline, and the output is a robot/object trajectory that can be executed or used as data.
+
+### Evidence matched to each pipeline stage
+
+The reconstruction stage optimizes human hand and object motion against image evidence, preventing early pose errors from being hidden by later retargeting. Contact-centric retargeting then maps the reconstructed interaction to robot hands with 6–22 degrees of freedom, preserving surface contact and relative hand–object geometry rather than copying human joint angles. Finally, physics-in-the-loop refinement simulates the robot/object system and adjusts trajectories for dynamic feasibility, correcting penetration, unstable grasps, and motions that are kinematically plausible but physically unsuccessful.
+
+This staged design is important: image reprojection is the right supervisory signal for reconstruction, contact geometry is the right invariant across embodiments, and task success in physics is the final feasibility test. For 150 motion-capture trajectories transferred to each of five dexterous hands, reported success ranges from 39–89%, versus at most 31% for prior transfer methods. On 60 monocular clips, it reports 53% success versus 28% for the strongest compared video-to-robot pipeline. Real bimanual execution demonstrates tasks beyond simulation.
+
+### Assessment
+
+The highlight is correcting error where it originates rather than expecting a downstream RL policy to absorb every reconstruction defect. It also avoids task-specific RL for each clip. However, monocular video leaves scale, occlusion, contact force, and object mass/friction ambiguous. Physics refinement can overfit assumed simulator parameters, and trajectory success does not provide closed-loop recovery when the real object moves differently.
+
+Future work should estimate uncertainty across reconstruction hypotheses, infer or adapt object physical parameters, incorporate tactile feedback, and compare open-loop trajectory execution with closed-loop policies trained from the same output. Evaluation should report preprocessing failures and human intervention, not only successful clips.
+
+
+## PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+
+Source: [arXiv 2610.12558](https://arxiv.org/abs/2610.12558).
+
+PanTact teaches a humanoid to use arms, knees, torso, or other body surfaces as manipulation contacts. The central cross-embodiment interface is a sparse contact goal: where and when contact should occur matters more than matching the demonstrator's exact joint pose. Human demonstrations are robot-free, and the deployed Unitree G1 does not require a full tactile skin.
+
+### Wearable data, visual policy, and controller
+
+The wearable system combines a head-mounted ZED stereo camera, two wrist fisheye cameras, Vive tracking of head/wrists/contact patches, bimanual UMI grippers, and modular 44×44 mm force-sensitive-resistor tiles. Contact electronics stream up to 16 channels at 1 kHz; all modalities are aligned to 60 Hz. Each contact record stores a binary state and 3-D world position. Adaptive baselines reduce drift sensitivity, while modular magnetic patches can cover different human body regions.
+
+A contact-predictive visuomotor policy consumes body-masked egocentric 3-D observations, wrist images, proprioceptive/history context and predicts end-effector trajectories plus sparse contact goals. At the low level, a PPO-trained sparse-contact tracker receives proprioception and future goal slots containing 3-D root-frame points, contact flags and validity masks. It runs at 50 Hz and outputs 29 joint-position targets for PD control. Hindsight labeling samples achievable contact points from successful simulated rollouts, allowing the controller to learn diverse body contacts without dense human-to-robot pose correspondence.
+
+Hardware tasks demonstrate body support, pushing, sweeping, and load sharing. The important novelty is that tactile sensing is used to supervise human demonstration and desired robot contact, even though runtime robot contact is realized through state/visual planning rather than equivalent skin sensors.
+
+### Assessment and future work
+
+PanTact unifies sensing, representation, and control around contact. Yet binary sparse goals omit desired force, tangential slip, contact patch orientation, compliance, and pain/safety constraints. Visual prediction may request a geometrically reachable but dynamically unsafe body contact, and the controller's simulated hindsight labels inherit simulator collision assumptions.
+
+Next work should add desired wrench/compliance, uncertainty-aware contact selection, runtime tactile verification, and human-safety limits. Generalization should cover unseen body surfaces, deformable objects, clothing, calibration shifts, and tasks where contact must be released—not merely achieved.
+
+
+## VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+
+Source: [arXiv 2610.13079](https://arxiv.org/abs/2610.13079).
+
+VICAR learns contact-rich humanoid skills from third-person monocular video. Its premise is that generic retargeting may preserve pose appearance while destroying the world-frame event that defines the task: a racket must meet the ball at a particular pose and speed, a hand must reach the table edge, or feet and hands must land on ladder rungs. VICAR elevates those contacts to explicit high-priority constraints.
+
+### Reconstruction, two-stage retargeting, and runtime conditioning
+
+The pipeline reconstructs human motion, camera/scene geometry, and task-relevant obstacles from video. A first interaction-aware retargeting pass produces a reasonable robot initialization without the full obstacle/contact problem. A second trajectory optimization preserves end-effector translational and angular speed, smooths the motion, penalizes collision/penetration, and imposes user-specified world-frame SE(3) contact anchors at selected frames through Lagrangian penalty terms. Contact and collision constraints have priority rather than being weak terms traded away for pose similarity.
+
+The retargeted motions train physics-based whole-body tracking policies and a contact-conditioned motion generator. Movable contact inputs let the generator shift a strike or grasp pose at runtime instead of replaying one fixed trajectory. The output is a whole-body reference/action interface, not pixels; video perception and manual contact annotation happen before policy deployment.
+
+Ten skills include six table-tennis serves, three pickups, and ladder climbing. Reported simulation success ranges from 95.5–100%, compared with 0–76.2% for prior retargeting pipelines; hardware trials on Unitree G1 report 60–100% across four tasks. Tabletop pickup improves from 76.2% to 99.8%, and ladder climbing from 56.0% to 95.5%.
+
+### Judgment and future work
+
+The highlight is preserving contact pose, timing, speed, and clearance together. The initialization-plus-constrained-refinement structure makes difficult optimization more stable. But contact anchors currently require manual annotation—roughly 20–30 minutes per skill—and monocular obstacle reconstruction can be wrong. Adding comparable post-hoc penalties to baselines also complicates attribution.
+
+The next step is automatic contact discovery with uncertainty, force-aware rather than pose-only contact, and closed-loop visual/tactile correction when objects move. Misannotated or unreachable anchors should trigger explicit infeasibility rather than an unsafe compromise.
+
+
+## Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data
+
+Source: [arXiv 2610.09117](https://arxiv.org/abs/2610.09117).
+
+Workhorse learns contact-rich whole-body tasks from robot-free human demonstrations without dense humanoid retargeting. It separates semantic/visual planning from physical execution through a sparse five-link interface: torso, both wrists, and both feet. Human and robot share those task-relevant targets even when their full joint configurations differ.
+
+### Human data, visual planner, and RL tracker
+
+A demonstrator wears five motion trackers on chest, hands, and shoes plus one chest RGB camera. Poses and video are synchronized at 60 Hz; the reported datasets contain 2.2 hours of box sorting, 1.2 hours of suitcase interaction, and 13 minutes of box catching. No object markers or robot teleoperation are required. Offline visual editing removes the human body and renders the robot into each training frame to reduce the human-to-robot appearance gap.
+
+The flow-matching visual planner takes four recent egocentric images and nine previous five-link samples spanning one second. It generates a 1.16-second chunk of future five-link targets and replans at 5 Hz. A reinforcement-learning whole-body tracker reads the next 0.2 seconds of those targets plus robot proprioception and outputs joint commands. Planner and tracker train separately on the same human pose stream rather than a retargeted dense robot motion.
+
+Each component is trained against the other's deployment errors. Tracker commands receive sawtooth drift and yaw perturbations that imitate planner/replanning error; planner training includes histories produced by imperfect tracking rather than only clean demonstrations. This cross-augmentation is central to closed-loop robustness.
+
+Real G1 tasks include hand-and-kick box sorting, catching a thrown box, and toppling/climbing a suitcase, with recovery after pushes or object removal. In a simulated room, box sorting succeeds in 77% of nominal episodes and 64% under 40 N·s pushes. Retraining on the same demonstrations for a second humanoid gives 83% without pushes.
+
+### Assessment
+
+The five-link contract is the highlight: it preserves task geometry while allowing the robot to choose feasible joint coordination. Yet tasks use separate planner/tracker pairs, data come from one demonstrator and room, and body replacement may not reproduce robot camera occlusion or dynamics. Five-link targets also omit desired contacts and forces.
+
+Future work should share one multi-task planner, add object/tactile state, test new rooms and demonstrators, and expose uncertainty when generated targets are unreachable. End-to-end latency and safety during planner/tracker disagreement deserve explicit measurement.

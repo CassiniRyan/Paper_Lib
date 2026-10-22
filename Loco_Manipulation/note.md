@@ -820,3 +820,169 @@ In simulated Carry, I-BFM reports 94.3% nominal success and 89.3% after a force-
 The highlight is representing the physical consequence of whole-body action, not only the humanoid pose. That makes I-BFM closer to an interaction dynamics model while retaining direct reactive control. However, “zero-shot task” still depends on manually specified rewards, measurable object/contact state, training support, and external phase logic. One box geometry, motion-capture perception, qualitative hardware trials, and one-day-old preprint evidence are not yet enough to establish broad object or environment generalization. Comparisons also differ in native inference and training data, so matched-data baselines are needed.
 
 Next work should replace motion capture with egocentric RGB-D and tactile/contact estimation, report the exact observation history and network sizes, and measure latency from sensing through PD execution. Tests should vary object geometry, mass, friction, grasp type, clutter, and contact loss, with held-out interaction families rather than new target positions alone. A coverage/uncertainty estimator should reject rewards outside the learned occupancy, while a safety shield limits latent commands and contact forces. Automatic semantic reward generation from language or vision would make the prompt interface useful to higher-level agents, but only if grounded rewards cannot exploit unobserved state or unsafe shortcuts.
+
+
+## InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+
+Source: [arXiv 2610.06850](https://arxiv.org/abs/2610.06850).
+
+InterMimicGen turns physics-based imitation into a data flywheel. Human–object interaction captures are diverse but sparse, use incompatible schemas, and are not directly executable by a humanoid. The system first consolidates sources such as InterAct and HiPHI, retargets them while preserving body coordination and hand–object relations, then trains one dexterous whole-body tracker. Crucially, successful robot execution becomes the validator and parent data for another augmentation round.
+
+### Retargeting, tracker, and self-evolution loop
+
+Contact-aware retargeting proceeds in stages: a grasp-shaping stage emphasizes finger opposition and hand–object structure, followed by geometric cleanup that reduces penetration while preserving contacts. The resulting references cover different objects, robot bodies, and hand configurations. A physics-based generalist tracking policy observes robot state plus reference motion and produces joint targets for a humanoid with dexterous hands; its feedback dynamics determine whether the nominal kinematic reference is genuinely executable.
+
+Each evolution round makes small task-preserving edits. Object trajectories are translated or rotated; body style can change through crouch, stance width, toe angle, or arm-nullspace adjustments. New proposals are blended from validated parents, the tracker is fine-tuned on them, and simulated rollouts are accepted only when they reach the reference end without falling, satisfy smoothness checks, and preserve the task outcome. Accepted variants seed the next round. This policy-in-the-loop mechanism is the main novelty: a frozen tracker can filter only near its initial competence, while an adapting tracker expands the reachable neighborhood.
+
+The seed collection contains 16,059 consolidated motions, and the reported iterative process grows executable coverage by roughly 150× over five rounds. Experiments span Unitree G1 variants with different hands, Booster robots, and other embodiments, with physical deployments showing that the generated references are not purely simulator artifacts.
+
+### Assessment and future work
+
+The highlight is coupling data generation and motor competence rather than assuming either is fixed. Yet the validator is partly self-referential: success under the current tracker may reject valuable motions that another controller could learn and accept variants that exploit its particular reward or simulator. Small local edits can compound without proving semantic diversity. Future evaluations should use independent task metrics, held-out trackers and physics engines, contact-force limits, dataset deduplication, and explicit provenance across generations. Uncertainty-aware acceptance and human review for rare contact modes would reduce the chance that the flywheel scales its own blind spots.
+
+
+## HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+
+Source: [arXiv 2609.34674](https://arxiv.org/abs/2609.34674).
+
+HOI-Retarget treats contact—not body-pose similarity—as the invariant that should survive human-to-robot transfer. Its input is a human motion, object trajectory and geometry, plus labeled contact intervals/locations. Its output is a robot-compatible whole-body reference and aligned object interaction that can be used as tracking data; it is an offline kinematic optimizer, not a deployed perception or control network.
+
+### Object-frame contacts and windowed optimization
+
+An initial inverse-kinematics pass maps the human pose to the target robot and scales the object/trajectory according to embodiment size. Every active human contact is represented as a target point in the object's coordinate frame, so it remains attached to the same surface region when the object moves or changes scale. A windowed nonlinear program then balances body tracking, palm-to-contact error, foot support, smoothness, and joint limits while holding the task's object motion consistent. Pinocchio supplies robot kinematics and CasADi/IPOPT solve the constrained optimization. Contact refinement tools allow noisy monocular-video annotations to be corrected, and the formulation extends to several robots manipulating a shared object.
+
+On the common OMOMO evaluation, the reported mean hand contact-point gap is 0.5 cm versus 18.3 cm for OmniRetarget, with 33.7 seconds versus 156.2 seconds compute per clip. The evaluation covers 13 object categories and thousands of clips, and the released dataset/code support Unitree G1 and H2. Dynamic refinement through RL- or sampling-based execution retains much of the contact advantage.
+
+### Judgment and limitations
+
+The method is compelling because task success in HOI often depends on touching the correct object surface, while low joint error can still miss the handle entirely. Expressing targets in the object frame also makes size augmentation principled. However, kinematic contact is not force feasibility: correct palm placement may demand impossible torque, friction, timing, or grasp closure. Results exclude clips that fail preprocessing/optimization, and annotation quality remains important.
+
+Next work should jointly optimize contact forces and balance, report failure rates before filtering, attach uncertainty to reconstructed contacts, and validate on unseen object topology rather than scaled familiar meshes. Closed-loop controllers should be tested against object displacement so the reference does not become brittle once physical execution diverges.
+
+
+## HULK: Learning Whole-Body Forceful Loco-Manipulation for Humanoids
+
+Source: [arXiv 2610.08970](https://arxiv.org/abs/2610.08970).
+
+HULK focuses on sustained loads rather than light pick-and-place. Heavy objects shift the combined center of mass and transmit large wrist/torso forces while the humanoid must continue walking and tracking commands. The framework trains two specialist reinforcement-learning teachers with model-predictive-control guidance, then distills their capabilities into one mode-conditioned deployable policy.
+
+### Teachers, MPC guidance, and control interface
+
+The wrist-force teacher follows arm pose targets while randomized external forces act at both wrists. An MPC model predicts loaded body motion and supplies reward guidance; a capture-point control-barrier-function term further discourages states whose divergent component of motion leaves the support region. The grasp teacher starts from established whole-body object grasps and learns to locomote while supporting large payloads against the torso. Both use PPO/asymmetric critics, so privileged load and dynamics information may shape training while the deployed actor uses robot-available state.
+
+The distilled student receives proprioception plus a shared command block: planar velocity, yaw rate, base height, torso orientation, arm joint targets, and a mode/context indicating the force or grasp behavior. It outputs whole-body joint targets for Unitree G1. This is not a vision system and it does not discover grasps; an upstream process supplies the object grasp and desired upper-body motion.
+
+Simulation reports the CBF-enhanced teacher has the lowest velocity error at 10 kg per arm, reduces aggregate DCM excursion by 35.7% relative to MPC-guided RL alone, and withstands torso pushes up to 130 N. Hardware demonstrations include carrying a 5 kg refrigerator-like object, carrying a canister while opening a door, and pulling a cart loaded to 300 kg.
+
+### Assessment
+
+The strongest idea is injecting predictive loaded-dynamics structure into reward learning while keeping a fast neural policy at deployment. Separating wrist-force and whole-body-grasp curricula also avoids asking one early policy to solve incompatible exploration problems. Nevertheless, the CBF influences training rather than certifying the final distilled student, and cart mass does not equal robot-supported payload because wheels carry most weight. Grasp acquisition, slip perception, and unknown load estimation remain outside the method.
+
+Future work should measure contact forces, torque/thermal limits, object slip, and stability margins on hardware; add tactile or force feedback; and retain a runtime safety filter after distillation. Generalization should vary grasp geometry, payload inertia, compliant contents, and unexpected release—not only mass.
+
+
+## Reflex: Visually Grounded Reactive Humanoid Control
+
+Source: [arXiv 2610.12772](https://arxiv.org/abs/2610.12772).
+
+Reflex studies a compact but demanding reactive task: catching a human-thrown box with a Unitree G1. Success requires whole-body balance, estimating a moving object's flight from partial observations, and reacting within roughly one second. The paper avoids training vision and motor control end-to-end from scratch; three stages are linked by an explicit latent representation of object dynamics.
+
+### Three-stage perception-to-action design
+
+First, a privileged state-based policy is trained with reinforcement learning to coordinate stepping, torso motion, and both arms for catching. It observes accurate robot and box state during this stage and outputs whole-body joint targets. Second, a dynamics inference module learns to estimate the task-relevant box representation from delayed, incomplete observation sequences, teaching the controller to tolerate the information pattern expected from cameras. Third, an egocentric RGB-D encoder predicts that same representation from temporal visual history while the trained whole-body controller remains fixed.
+
+At deployment the system uses onboard egocentric RGB-D plus robot state; it does not receive box pose, velocity, motion-capture data, or fiducial markers. Temporal history is essential because a single frame cannot identify velocity or time-to-contact. This modular latent also supplies direct losses for visual estimation instead of asking sparse catch reward to train the entire stack.
+
+Simulation success is 85.7% from egocentric RGB-D versus 87.9% with privileged box observations. Removing temporal vision lowers success by 35.6 and 39.8 percentage points for centered and laterally offset throws. On real G1 hardware, reported catch success is 65% at 2.5 m and 40% at 5 m, corresponding to 76% and 59% of measured human catcher performance under the same setups.
+
+### Assessment and next work
+
+The highlight is architectural responsibility: motor learning, partial-observation dynamics inference, and visual grounding are tested separately, yet share a compact interface. This makes the vision gap measurable. Catching boxes is still a narrow distribution, and RGB-D latency, depth failure, object shape, spin, and collision force can dominate outside it. A successful catch does not by itself establish safe contact.
+
+Future work should quantify camera-to-action latency and its variance, predict calibrated trajectory uncertainty, adapt the reaching/catching strategy when uncertainty is high, and include tactile/force feedback after first contact. Tests with different objects, occlusion, moving robot bases, bystanders, and abort/deflect actions would better establish general reactive humanoid control.
+
+
+## PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+
+Source: [arXiv 2610.12558](https://arxiv.org/abs/2610.12558).
+
+PanTact teaches a humanoid to use arms, knees, torso, or other body surfaces as manipulation contacts. The central cross-embodiment interface is a sparse contact goal: where and when contact should occur matters more than matching the demonstrator's exact joint pose. Human demonstrations are robot-free, and the deployed Unitree G1 does not require a full tactile skin.
+
+### Wearable data, visual policy, and controller
+
+The wearable system combines a head-mounted ZED stereo camera, two wrist fisheye cameras, Vive tracking of head/wrists/contact patches, bimanual UMI grippers, and modular 44×44 mm force-sensitive-resistor tiles. Contact electronics stream up to 16 channels at 1 kHz; all modalities are aligned to 60 Hz. Each contact record stores a binary state and 3-D world position. Adaptive baselines reduce drift sensitivity, while modular magnetic patches can cover different human body regions.
+
+A contact-predictive visuomotor policy consumes body-masked egocentric 3-D observations, wrist images, proprioceptive/history context and predicts end-effector trajectories plus sparse contact goals. At the low level, a PPO-trained sparse-contact tracker receives proprioception and future goal slots containing 3-D root-frame points, contact flags and validity masks. It runs at 50 Hz and outputs 29 joint-position targets for PD control. Hindsight labeling samples achievable contact points from successful simulated rollouts, allowing the controller to learn diverse body contacts without dense human-to-robot pose correspondence.
+
+Hardware tasks demonstrate body support, pushing, sweeping, and load sharing. The important novelty is that tactile sensing is used to supervise human demonstration and desired robot contact, even though runtime robot contact is realized through state/visual planning rather than equivalent skin sensors.
+
+### Assessment and future work
+
+PanTact unifies sensing, representation, and control around contact. Yet binary sparse goals omit desired force, tangential slip, contact patch orientation, compliance, and pain/safety constraints. Visual prediction may request a geometrically reachable but dynamically unsafe body contact, and the controller's simulated hindsight labels inherit simulator collision assumptions.
+
+Next work should add desired wrench/compliance, uncertainty-aware contact selection, runtime tactile verification, and human-safety limits. Generalization should cover unseen body surfaces, deformable objects, clothing, calibration shifts, and tasks where contact must be released—not merely achieved.
+
+
+## VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+
+Source: [arXiv 2610.13079](https://arxiv.org/abs/2610.13079).
+
+VICAR learns contact-rich humanoid skills from third-person monocular video. Its premise is that generic retargeting may preserve pose appearance while destroying the world-frame event that defines the task: a racket must meet the ball at a particular pose and speed, a hand must reach the table edge, or feet and hands must land on ladder rungs. VICAR elevates those contacts to explicit high-priority constraints.
+
+### Reconstruction, two-stage retargeting, and runtime conditioning
+
+The pipeline reconstructs human motion, camera/scene geometry, and task-relevant obstacles from video. A first interaction-aware retargeting pass produces a reasonable robot initialization without the full obstacle/contact problem. A second trajectory optimization preserves end-effector translational and angular speed, smooths the motion, penalizes collision/penetration, and imposes user-specified world-frame SE(3) contact anchors at selected frames through Lagrangian penalty terms. Contact and collision constraints have priority rather than being weak terms traded away for pose similarity.
+
+The retargeted motions train physics-based whole-body tracking policies and a contact-conditioned motion generator. Movable contact inputs let the generator shift a strike or grasp pose at runtime instead of replaying one fixed trajectory. The output is a whole-body reference/action interface, not pixels; video perception and manual contact annotation happen before policy deployment.
+
+Ten skills include six table-tennis serves, three pickups, and ladder climbing. Reported simulation success ranges from 95.5–100%, compared with 0–76.2% for prior retargeting pipelines; hardware trials on Unitree G1 report 60–100% across four tasks. Tabletop pickup improves from 76.2% to 99.8%, and ladder climbing from 56.0% to 95.5%.
+
+### Judgment and future work
+
+The highlight is preserving contact pose, timing, speed, and clearance together. The initialization-plus-constrained-refinement structure makes difficult optimization more stable. But contact anchors currently require manual annotation—roughly 20–30 minutes per skill—and monocular obstacle reconstruction can be wrong. Adding comparable post-hoc penalties to baselines also complicates attribution.
+
+The next step is automatic contact discovery with uncertainty, force-aware rather than pose-only contact, and closed-loop visual/tactile correction when objects move. Misannotated or unreachable anchors should trigger explicit infeasibility rather than an unsafe compromise.
+
+
+## Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+
+Source: [arXiv 2609.35450](https://arxiv.org/abs/2609.35450).
+
+Uni-VLaT extends pretrained vision-language-action policies with distributed whole-body touch. Vision and proprioception can miss occluded or spatially distributed contact—someone taps the back, the torso supports an object, or a surface pushes a limb. The method adds a tactile pathway whose representation is trained both to generate actions and to predict future tactile, proprioceptive, and visual features.
+
+### Multimodal predictive adaptation
+
+Inputs combine language instruction, camera observations, robot proprioception, and spatial tactile measurements across the humanoid body. A tactile encoder produces tokens that are fused into the pretrained VLA after the diffusion-transformer context has formed, limiting disruption of the original vision/language prior. The action head retains the backbone's continuous chunk representation. Auxiliary heads predict absolute future tactile, proprioceptive, and visual latents from the contextualized tactile state, creating a tactile-anchored representation of how physical interaction is likely to evolve.
+
+The predictive targets make this more than concatenating another sensor. Ablations show that contextualized tactile prediction and absolute future targets outperform delta-only prediction, plausibly because sustained contact would disappear in a change representation. The adapter is evaluated with two pretrained VLA backbones, Isaac GR00T and π0.5, across five physical tasks involving touch-triggered walking, sustained interaction, human contact, and loco-manipulation.
+
+Average hardware success is 75%, compared with 32% without tactile input and 68% with touch but without predictive supervision. Table Sweeping improves by 30 points on both backbones; Back-Tap Walking improves by 85–90 points. These are large task-specific gains, though the main evaluation has 20 rollouts per task and many ablations use ten.
+
+### Assessment and safety
+
+The key contribution is making touch a predictive world signal instead of only a reactive observation. It belongs to VLA, perception, WAM, and whole-body interaction because language/vision select behavior while tactile futures shape execution. Limitations include sensor calibration, coverage, latency, skin durability, and the possibility that a learned action exploits high pressure to satisfy task reward.
+
+Future work should report contact-force/pressure limits, sensor dropout and drift, temporal synchronization, uncertainty, and unseen contact locations. Cross-robot tactile geometry and safe fallback when touch contradicts vision are decisive tests of whether the adaptation is general or hardware-specific.
+
+
+## Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data
+
+Source: [arXiv 2610.09117](https://arxiv.org/abs/2610.09117).
+
+Workhorse learns contact-rich whole-body tasks from robot-free human demonstrations without dense humanoid retargeting. It separates semantic/visual planning from physical execution through a sparse five-link interface: torso, both wrists, and both feet. Human and robot share those task-relevant targets even when their full joint configurations differ.
+
+### Human data, visual planner, and RL tracker
+
+A demonstrator wears five motion trackers on chest, hands, and shoes plus one chest RGB camera. Poses and video are synchronized at 60 Hz; the reported datasets contain 2.2 hours of box sorting, 1.2 hours of suitcase interaction, and 13 minutes of box catching. No object markers or robot teleoperation are required. Offline visual editing removes the human body and renders the robot into each training frame to reduce the human-to-robot appearance gap.
+
+The flow-matching visual planner takes four recent egocentric images and nine previous five-link samples spanning one second. It generates a 1.16-second chunk of future five-link targets and replans at 5 Hz. A reinforcement-learning whole-body tracker reads the next 0.2 seconds of those targets plus robot proprioception and outputs joint commands. Planner and tracker train separately on the same human pose stream rather than a retargeted dense robot motion.
+
+Each component is trained against the other's deployment errors. Tracker commands receive sawtooth drift and yaw perturbations that imitate planner/replanning error; planner training includes histories produced by imperfect tracking rather than only clean demonstrations. This cross-augmentation is central to closed-loop robustness.
+
+Real G1 tasks include hand-and-kick box sorting, catching a thrown box, and toppling/climbing a suitcase, with recovery after pushes or object removal. In a simulated room, box sorting succeeds in 77% of nominal episodes and 64% under 40 N·s pushes. Retraining on the same demonstrations for a second humanoid gives 83% without pushes.
+
+### Assessment
+
+The five-link contract is the highlight: it preserves task geometry while allowing the robot to choose feasible joint coordination. Yet tasks use separate planner/tracker pairs, data come from one demonstrator and room, and body replacement may not reproduce robot camera occlusion or dynamics. Five-link targets also omit desired contacts and forces.
+
+Future work should share one multi-task planner, add object/tactile state, test new rooms and demonstrators, and expose uncertainty when generated targets are unreachable. End-to-end latency and safety during planner/tracker disagreement deserve explicit measurement.

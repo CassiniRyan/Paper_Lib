@@ -220,3 +220,130 @@ On 50 RoboTwin 2.0 tasks, Efficient-WAM reports 86.7% average clean and 85.7% ra
 The most useful idea is allocating compute by downstream utility: preserve high-resolution evidence about the present, aggressively compress the hypothetical future, and spend extra refinement on actions. Still, “30× faster” is a comparison with a particularly heavy baseline on one GPU and should not be read as universal real-time performance. A 98 ms planning pause can remain important for fast contact, and amortized per-step latency assumes safe open-loop execution of the chunk. Results also combine architectural compression, distillation, token reduction, and sampling changes; each saves cost but can fail differently under occlusion or distribution shift.
 
 Future work should measure end-to-end camera-to-actuator latency, chunk interruption behavior, calibration of imagined futures, and whether low-fidelity predictions preserve rare safety-critical events. Adaptive computation could increase video steps only when uncertainty or observation–prediction disagreement is high. Tests with unseen instructions, novel objects, camera shifts, deformables, and longer-horizon error recovery would clarify whether compressed imagination preserves generalization rather than only benchmark success. A valuable ablation would replace video tokens with equal-cost learned latent dynamics to determine whether recognizable future imagery is needed at all.
+
+
+## Faster-WAM: Efficient Inference-Time Future Conditioning for Robust World Action Models
+
+Source: [arXiv 2608.04404](https://arxiv.org/abs/2608.04404).
+
+Faster-WAM asks which part of world-action inference actually provides robustness. A joint WAM repeatedly updates video and action tokens during denoising, retaining future-aware context but incurring high latency. Fast policies often delete the future branch at inference, saving compute but weakening generalization under visual or task distribution shift. Controlled experiments show that this inference-time future conditioning—not merely an auxiliary future-prediction loss during training—is load bearing.
+
+### Sparse future conditioning architecture
+
+The model receives current visual observation and task/robot conditioning, maintains noisy future-video slots, and generates a continuous robot action chunk through flow or diffusion-style denoising. The video expert is evaluated once at the fully noisy future endpoint. Its layer-wise key/value features are cached as a hierarchy of predictive context. SparseMoT then permits video–action interaction at only a compact subset of transformer stages instead of every layer. Interval KV-Fusion aggregates cached features from multiple video depths without increasing the action attention sequence length. Subsequent action-denoising iterations reuse this cache, so the expensive video branch is not rerun.
+
+This differs from simply conditioning on a frozen current-image embedding. Even with noisy future tokens, the video expert must organize representations around plausible scene evolution. Action tokens repeatedly consult that representation while refining the action chunk. The output is action, not a decoded video required by the controller; future representation is retained for decision quality while pixel-level generation cost is avoided.
+
+### Evidence, judgment, and next work
+
+On LIBERO-Plus, Faster-WAM reports 73.57% success versus 49.14% for the matched Fast-WAM and 66.27% for Joint-WAM, while being 2.21× faster than Joint-WAM. It also reports strong LIBERO, RoboTwin 2.0, and physical manipulation performance. The controlled shared-backbone comparison is a major strength because it isolates future access from data and capacity.
+
+Caching introduces a new risk: the imagined context is computed once and can become stale as action refinement or the real scene changes. Average latency also hides tail delays and open-loop exposure inside each chunk. Useful next steps are uncertainty-triggered cache refresh, observation–prediction disagreement checks, end-to-end camera-to-actuator timing, and safety tests where small future details—slip, collision, human motion—matter more than benchmark average.
+
+
+## World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+
+Source: [arXiv 2609.02542](https://arxiv.org/abs/2609.02542).
+
+WM-LOCO targets terrain where a single locally reasonable foot placement can make the rest of the route impossible: gaps, stepping stones, and narrow stair treads. A matched reactive PPO policy sees the current terrain but often commits too early. WM-LOCO jointly trains a recurrent predictive model so the actor receives a compact summary of likely future observations and rewards before selecting the next joint action.
+
+### Observation history, world model, and control output
+
+The deployed input combines five frames of proprioceptive history, commanded base-frame velocity, and one head-mounted depth image from an onboard Intel RealSense D435. There are no explicit foothold labels or external map. A recurrent world-model pathway predicts near-future observation/reward information and exposes its hidden feature to a mixture-of-experts actor–critic. The actor outputs whole-body joint targets for the Unitree G1; PPO, an adversarial motion prior, normal locomotion rewards, and terrain-specific contact shaping train control. The baseline uses the same reward, perception stream, proprioceptive encoder, MoE policy, and training budget but removes the predictive pathway, making the comparison unusually clean.
+
+Training uses thousands of parallel IsaacLab environments with procedural gaps, stones, and stairs. On held-out terrain, the world-model policy succeeds on gap and stepping-stone settings where the matched baseline reports zero success, while matching stair success with smoother pelvis motion and more efficient strides. The same onboard policy traverses all three physical terrain classes with 93.3% average success.
+
+### What is novel and what remains uncertain
+
+The useful idea is not a long pixel rollout but a predictive recurrent state optimized jointly with the motor policy. It offers anticipation without constructing an explicit height map or committing to a footstep planner. The principal ambiguity is whether gain comes from prediction or simply extra recurrent capacity; auxiliary-loss and capacity-matched recurrent ablations are essential. Terrain-specific shaping also supplies privileged training knowledge even though deployment has no foothold labels.
+
+Future work should expose prediction horizon and calibration, test depth dropout/latency and moving or deformable supports, and compare with explicit foothold planning at equal compute. A safety layer should reason about support uncertainty before committing to irreversible contacts, and the model should report when the next feasible foothold lies outside its visual/history support.
+
+
+## Cross-Embodiment Robot Foundation World Models with Latent Action
+
+Source: [ICML 2026 paper](https://openreview.net/pdf/5c8fa1532215f2ea0717ed9db11ee805185dc7d3.pdf).
+
+This work addresses a central obstacle to foundation world models: action labels from different robots live in incompatible spaces. A gripper delta, dexterous-hand joint vector, and human hand motion cannot be concatenated meaningfully. The proposed Latent Action-Conditioned World Model (LAC-WM) learns a shared action representation from visual transitions, then predicts future visual state under that representation.
+
+### Latent action and predictive architecture
+
+An inverse-dynamics model encodes consecutive visual features into a latent action. A forward world model receives the current visual representation plus the latent and predicts the next visual representation/frame. A motion decoder regularizes the latent by reconstructing available embodiment-specific motion/action information, while cross-embodiment augmentation discourages the inverse model from using appearance shortcuts to identify the robot. At adaptation time, a small embodiment-specific interface maps the new robot's demonstrations or controls into the shared space.
+
+The key comparison is an Explicit Action-Conditioned World Model whose action encoder consumes annotated motion directly. Explicit labels produce separated embodiment clusters, whereas transition-derived latent actions align functionally similar changes. LAC-WM is evaluated on dexterous manipulation and modified LIBERO tasks, including held-out embodiments; reported downstream improvements reach 46.7% on dexterous manipulation and 11.7% on LIBERO. Performance scales positively with more pretraining embodiments, while the explicit-action alternative can degrade.
+
+### Interpretation and limitations
+
+The main contribution is not a universal motor policy but an action-conditioned predictive model whose internal action vocabulary transfers. This makes it a WAM/world-model paper, not whole-body control. Learning action from before/after images can still conflate agent motion with camera motion, object dynamics, or embodiment appearance. Similar visual transitions may require very different forces, and a latent useful for prediction is not automatically controllable.
+
+Future work should test causal interventions, contact/force observations, long-horizon rollout error, and truly novel morphologies rather than related hands/manipulators. A deployable planner needs an inverse mapping from desired latent transition to safe native commands, uncertainty over unreachable latents, and checks that cross-embodiment alignment preserves dynamics rather than only visual outcome.
+
+
+## Long-WAM: Scaling the Context of World-Action Models
+
+Source: [arXiv 2610.10528](https://arxiv.org/abs/2610.10528).
+
+Long-WAM studies memory in world-action models under a hard systems constraint: more camera history can reveal motion and task progress, but re-encoding it can make the robot too slow. Its main scientific finding is that simply extending the input window is insufficient. Long context becomes useful when the visual foundation model was pretrained autoregressively so that past frames causally predict future ones.
+
+### Causal pretraining, streaming memory, and outputs
+
+Stage one performs autoregressive video pretraining on robot and egocentric human video without action labels. Stage two adapts the causal representation into a world-action model that jointly produces future-video latents and robot action chunks while preserving the history-to-future structure. Streaming observation encoding caches earlier visual computation instead of rebuilding a 19-second sequence each cycle. Asynchronous execution and hardware-specific kernels overlap planning with action delivery so future prediction is retained rather than dropped for speed.
+
+The inputs are a long visual history plus current robot/task conditioning; outputs are continuous action chunks and predicted future visual latents. On RoboCasa GR-1, increasing history from 0 to 19.2 seconds raises success from 63.3% to 78.7% with autoregressive initialization, whereas a bidirectionally pretrained initialization obtains no net benefit. Robot-domain AR pretraining further improves GR-1 and LIBERO-Long, and results are strong on RoboTwin 2.0 and DOMINO.
+
+Deployment targets include RTX 5090, DGX Spark, and Jetson AGX Thor. On RTX 5090 an action chunk including future-latent prediction takes 107.4 ms. Real YAM and Unitree G1 demonstrations include dynamic and long-horizon tasks; dynamic cup stacking reports 95% success while π0.5 and Fast-WAM fail all 20 trials in the stated setup.
+
+### Judgment and future work
+
+The highlight is linking representation pretraining and serving architecture: memory only helps if the model was trained to use causal history and the system can stream it. However, long context may memorize background or stale events, and asynchronous execution complicates exactly which observation each action conditions on. Hardware-specific acceleration weakens portability.
+
+Future work should measure effective memory attribution, stale-cache recovery, observation/action timestamp alignment, and performance under camera cuts or long irrelevant history. Adaptive memory compression and uncertainty-triggered retrieval could retain decisive events without processing every frame indefinitely.
+
+
+## Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+
+Source: [arXiv 2609.35450](https://arxiv.org/abs/2609.35450).
+
+Uni-VLaT extends pretrained vision-language-action policies with distributed whole-body touch. Vision and proprioception can miss occluded or spatially distributed contact—someone taps the back, the torso supports an object, or a surface pushes a limb. The method adds a tactile pathway whose representation is trained both to generate actions and to predict future tactile, proprioceptive, and visual features.
+
+### Multimodal predictive adaptation
+
+Inputs combine language instruction, camera observations, robot proprioception, and spatial tactile measurements across the humanoid body. A tactile encoder produces tokens that are fused into the pretrained VLA after the diffusion-transformer context has formed, limiting disruption of the original vision/language prior. The action head retains the backbone's continuous chunk representation. Auxiliary heads predict absolute future tactile, proprioceptive, and visual latents from the contextualized tactile state, creating a tactile-anchored representation of how physical interaction is likely to evolve.
+
+The predictive targets make this more than concatenating another sensor. Ablations show that contextualized tactile prediction and absolute future targets outperform delta-only prediction, plausibly because sustained contact would disappear in a change representation. The adapter is evaluated with two pretrained VLA backbones, Isaac GR00T and π0.5, across five physical tasks involving touch-triggered walking, sustained interaction, human contact, and loco-manipulation.
+
+Average hardware success is 75%, compared with 32% without tactile input and 68% with touch but without predictive supervision. Table Sweeping improves by 30 points on both backbones; Back-Tap Walking improves by 85–90 points. These are large task-specific gains, though the main evaluation has 20 rollouts per task and many ablations use ten.
+
+### Assessment and safety
+
+The key contribution is making touch a predictive world signal instead of only a reactive observation. It belongs to VLA, perception, WAM, and whole-body interaction because language/vision select behavior while tactile futures shape execution. Limitations include sensor calibration, coverage, latency, skin durability, and the possibility that a learned action exploits high pressure to satisfy task reward.
+
+Future work should report contact-force/pressure limits, sensor dropout and drift, temporal synchronization, uncertainty, and unseen contact locations. Cross-robot tactile geometry and safe fallback when touch contradicts vision are decisive tests of whether the adaptation is general or hardware-specific.
+
+## SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model
+
+Sources: [arXiv 2610.28480](https://arxiv.org/abs/2610.28480) and the [project page](https://supermimic.github.io/).
+
+SuperMimic attacks the compute cost of large-scale humanoid motion tracking. Model-free PPO repeatedly discovers the physical consequence of actions through expensive simulator steps, even though every clip in a motion library uses the same robot dynamics. SuperMimic instead learns one differentiable dynamics surrogate, uses it to imagine short rollouts, and obtains low-variance analytic policy gradients by backpropagating return through time. The important distinction is that it does **not** require a differentiable simulator: MuJoCo Warp supplies ordinary logged transitions, while the learned world model supplies differentiable predictions and Jacobians.
+
+### Inputs, outputs, and deployed controller
+
+The Unitree G1 policy runs at 50 Hz and uses proprioception only. One observation contains 29 joint positions relative to the default pose, 29 joint velocities, three-axis IMU base angular velocity, three-dimensional projected gravity, and the previous 29-dimensional action. The decoder receives the most recent 10 observations, so it has 0.2 seconds of state/action history. The motion interface separately encodes 10 future reference frames. It maps them through a 2048–1024–512–256 MLP to a bounded 32-dimensional latent; a shared 2048–1024–512–256 MLP combines that latent with observation history and outputs 29 normalized joint commands. Each command becomes a joint setpoint around the default pose; low PD gains make the setpoint behave more like a torque proxy than a stiff position target. There is no camera, LiDAR, terrain map, or tactile input.
+
+The architecture is deliberately an MLP rather than a Transformer. Its generality comes from dataset scale and goal conditioning, not attention. A separate velocity-command encoder illustrates the multi-interface design: it consumes desired planar velocity/yaw rate plus observation-history features and maps them through a 256–256 MLP into the same 32-dimensional latent and shared motor decoder. Each interface has its own 256–128 critic. This makes the controller a reusable motor prior whose command encoder can change while its physical action space remains fixed.
+
+### World model and training loop
+
+Training alternates three steps throughout, rather than pretraining and freezing a dynamics model. First, the current deterministic policy runs in MuJoCo Warp with injected action noise and stores transitions in replay. Second, a dynamics MLP with three 2048-wide hidden layers is fitted autoregressively over eight logged steps. It receives predicted state, action, and explicit simulation context—friction, joint calibration offsets, and torso center-of-mass offsets—and predicts the next state. Learned or analytic heads additionally produce noise-free observations, reward, and a soft termination probability. Known sensor noise is added outside the model, keeping the learned dynamics deterministic while still training the policy under noisy observations.
+
+Third, the world model is held fixed only during that policy update. Replay states seed 32-step on-policy imagined rollouts; a bootstrapped critic estimates return beyond the imagination window, while differentiable survival weights replace hard termination. Backpropagation through the full model rollout differentiates reward with respect to every action and then the policy. The critic is important rather than cosmetic: short-horizon training without it becomes myopic after pushes, whereas the bootstrapped version can recover because value beyond the 32 imagined steps affects the update. The motion objective follows BeyondMimic's body/root position, orientation, linear-velocity, and angular-velocity tracking rewards, plus smoothness and joint-limit regularization.
+
+### Evidence, novelty, and judgment
+
+The reported controller trains on 264.56 hours of filtered G1-retargeted BONES-SEED data and is evaluated over 129,514 motions. On the authors' common benchmark, one H100 surpasses the released SONIC checkpoint's normalized return within three hours, with 25 failed motions versus SONIC's 179; a two-H100 run reports no failed motions after 9.8 hours. The paper characterizes this as over 50× less wall-clock time and over 1000× fewer GPU-hours than SONIC's reported 128-L40, seven-day run. A more controlled LAFAN1 experiment holds observations, rewards, networks, randomization, and data constant: SuperMimic reaches 0.82 return in 1.2 hours on one GPU, while PPO-Sim does not reach it within 18 hours even with up to eight GPUs. The learned model is over 10× faster than MuJoCo Warp at practical batch sizes, and analytic gradients need roughly 64× fewer imagined steps than PPO operating on the same learned model.
+
+The strongest idea is amortization: adding motions adds goals but not new robot physics, so one dynamics model can make controller cost grow much more slowly than dataset length. Real G1 demonstrations of a skipping jump, side roll, 90-degree flip, and in-place 360-degree flip show that the result is more than simulator-only return optimization. The downstream velocity experiment also suggests that optimizing a new task reward through the model can outperform merely distilling commands from the motion library.
+
+Several claims still need careful boundaries. SONIC and SuperMimic use different GPU generations and different amounts of motion data, and the reported main curves omit seed variation. Evaluation on the training motion collection measures coverage and execution, not unseen-motion generalization. A learned model can provide an incorrect but exploitable gradient outside replay support; frequent refitting and short horizons reduce that risk but do not certify it. The dynamics model is trained only from simulation, deployment is flat-ground proprioceptive control, and the paper explicitly excludes terrain and object interaction. The preliminary velocity interface freezes the shared decoder for its own reward, so it does not yet demonstrate unconstrained joint multi-task learning.
+
+Next work should test held-out motion families and embodiments, quantify world-model uncertainty and gradient error rather than state error alone, and compare total energy/cost on matched hardware. An ensemble or trust region could stop imagined updates when they leave replay support. Incorporating real transitions could turn the same differentiable model into online system identification, while terrain, vision, contact, and object state would test whether one model still amortizes dynamics when contacts and environment geometry vary substantially.

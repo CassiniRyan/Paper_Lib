@@ -467,3 +467,24 @@ A strong systems evaluation would replay measured latency traces with jitter, GP
 ### Comparative position
 
 RTC is orthogonal to almost every learning contribution here. It can wrap π0 chunks, HuMI diffusion, SUGAR commands, or tactile pose plans if the sampler supports prefix conditioning. It does not improve perception or motor competence, but prevents failures caused by disagreement between wall-clock inference and control time. Every chunked humanoid policy should compare blocking execution, naive asynchronous replacement, temporal ensembling, and RTC under the same measured latency trace.
+
+
+## CrossBFM: Distilling a Shared Latent Behavior Space Across Humanoid Embodiments
+
+Source: [arXiv 2609.38087](https://arxiv.org/abs/2609.38087).
+
+CrossBFM treats a behavior-foundation-model latent space as a transferable coordinate system. Training a forward–backward BFM separately on every humanoid costs hundreds of GPU-hours and yields unrelated latent semantics. CrossBFM freezes a source Unitree G1 backward map, uses frame-aligned retargeted motions as cross-embodiment correspondence, and distills the same latent meaning into several target robots.
+
+### Unified encoder and per-robot controller
+
+For each frame, the source backward encoder produces a 256-D latent projected onto a sphere. Target embodiments are represented in a canonical 163-D layout containing 33 joint slots, eight key-body entries, root proprioception, and presence masks. A four-layer pre-LayerNorm transformer reads a 64-frame window and regresses target observations onto the source latent with cosine loss. The architecture contains no learned robot-specific encoder parameters; masks and functional joint mappings handle missing/reordered joints.
+
+A separate PPO latent-conditioned tracker is then trained for each robot. Its deployable input is target-robot proprioception plus the shared behavior latent, and its output is native joint targets. Because the latent coordinates remain those of the source BFM, the same interfaces support motion tracking, pose/goal reaching, reward-derived commands, and a rectified-flow generator that samples behavior-latent chunks such as walk, run, squat, or dance.
+
+Encoder distillation takes under one GPU-hour, followed by roughly ten GPU-hours for each tracker. Across three humanoids, latent tracking stays within 0.025 rad of matched joint-conditioned policies; all 41 reward prompts are evaluated, and physical robots demonstrate tracking, goal interpolation, and generated-latent control. Using one quarter of the corpus costs about 5% tracking performance, while an unseen morphologically similar robot recovers up to 89% of seen-robot performance.
+
+### Assessment
+
+The elegant idea is reusing the behavioral language rather than relearning it. But each embodiment still requires its own PPO motor decoder, and reward prompting uses robot-specific calibration; this is not zero-shot actuation. Generalization drops sharply for more distant morphology, exposing dependence on retargeting correspondence and canonical slots.
+
+Future work should learn force/contact-aware correspondences, quantify missing-joint ambiguity, and jointly train a cross-embodiment decoder. Safety/coverage estimators should reject latents outside a target robot's feasible set rather than assuming semantic alignment implies physical feasibility.

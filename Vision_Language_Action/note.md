@@ -220,3 +220,24 @@ On 50 RoboTwin 2.0 tasks, Efficient-WAM reports 86.7% average clean and 85.7% ra
 The most useful idea is allocating compute by downstream utility: preserve high-resolution evidence about the present, aggressively compress the hypothetical future, and spend extra refinement on actions. Still, “30× faster” is a comparison with a particularly heavy baseline on one GPU and should not be read as universal real-time performance. A 98 ms planning pause can remain important for fast contact, and amortized per-step latency assumes safe open-loop execution of the chunk. Results also combine architectural compression, distillation, token reduction, and sampling changes; each saves cost but can fail differently under occlusion or distribution shift.
 
 Future work should measure end-to-end camera-to-actuator latency, chunk interruption behavior, calibration of imagined futures, and whether low-fidelity predictions preserve rare safety-critical events. Adaptive computation could increase video steps only when uncertainty or observation–prediction disagreement is high. Tests with unseen instructions, novel objects, camera shifts, deformables, and longer-horizon error recovery would clarify whether compressed imagination preserves generalization rather than only benchmark success. A valuable ablation would replace video tokens with equal-cost learned latent dynamics to determine whether recognizable future imagery is needed at all.
+
+
+## Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+
+Source: [arXiv 2609.35450](https://arxiv.org/abs/2609.35450).
+
+Uni-VLaT extends pretrained vision-language-action policies with distributed whole-body touch. Vision and proprioception can miss occluded or spatially distributed contact—someone taps the back, the torso supports an object, or a surface pushes a limb. The method adds a tactile pathway whose representation is trained both to generate actions and to predict future tactile, proprioceptive, and visual features.
+
+### Multimodal predictive adaptation
+
+Inputs combine language instruction, camera observations, robot proprioception, and spatial tactile measurements across the humanoid body. A tactile encoder produces tokens that are fused into the pretrained VLA after the diffusion-transformer context has formed, limiting disruption of the original vision/language prior. The action head retains the backbone's continuous chunk representation. Auxiliary heads predict absolute future tactile, proprioceptive, and visual latents from the contextualized tactile state, creating a tactile-anchored representation of how physical interaction is likely to evolve.
+
+The predictive targets make this more than concatenating another sensor. Ablations show that contextualized tactile prediction and absolute future targets outperform delta-only prediction, plausibly because sustained contact would disappear in a change representation. The adapter is evaluated with two pretrained VLA backbones, Isaac GR00T and π0.5, across five physical tasks involving touch-triggered walking, sustained interaction, human contact, and loco-manipulation.
+
+Average hardware success is 75%, compared with 32% without tactile input and 68% with touch but without predictive supervision. Table Sweeping improves by 30 points on both backbones; Back-Tap Walking improves by 85–90 points. These are large task-specific gains, though the main evaluation has 20 rollouts per task and many ablations use ten.
+
+### Assessment and safety
+
+The key contribution is making touch a predictive world signal instead of only a reactive observation. It belongs to VLA, perception, WAM, and whole-body interaction because language/vision select behavior while tactile futures shape execution. Limitations include sensor calibration, coverage, latency, skin durability, and the possibility that a learned action exploits high pressure to satisfy task reward.
+
+Future work should report contact-force/pressure limits, sensor dropout and drift, temporal synchronization, uncertainty, and unseen contact locations. Cross-robot tactile geometry and safe fallback when touch contradicts vision are decisive tests of whether the adaptation is general or hardware-specific.

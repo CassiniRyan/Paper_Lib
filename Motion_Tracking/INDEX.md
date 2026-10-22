@@ -43,3 +43,13 @@ PDF count: 16
 - Unified Motion Retargeting for Humanoids with Learned Point Cloud Correspondence
 - UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots
 - X-OP: Cross-Morphology Whole-Body Teleoperation via MPC Retargeting
+- InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+- HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+- VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+- MimicX: Policy-in-the-Loop Supervision Refinement for Video-Driven Humanoid Motion Tracking
+- CrossBFM: Distilling a Shared Latent Behavior Space Across Humanoid Embodiments
+- P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+- HoRD: Robust Humanoid Control via History-Conditioned Reinforcement Learning and Online Distillation
+- ASAP: Aligning Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills
+- PGMT: Perceptive General Motion Tracking for Humanoid Robots
+- SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model

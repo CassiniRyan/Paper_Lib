@@ -6,3 +6,9 @@ Hybrid Internal Model Learning Agile Legged Locomotion with Simulated Robot Resp
 Learning Humanoid Locomotion with Perceptive Internal Model
 MotionWAM: Towards Foundation World Action Models for Real-Time Humanoid Loco-Manipulation
 MuGen: Multi-Skill Generative Locomotion Controller for Humanoid Robots
+Faster-WAM: Efficient Inference-Time Future Conditioning for Robust World Action Models
+World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+Cross-Embodiment Robot Foundation World Models with Latent Action
+Long-WAM: Scaling the Context of World-Action Models
+Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model

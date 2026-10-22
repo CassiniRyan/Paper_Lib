@@ -70,3 +70,6 @@ PDF count: 59
 - Visual Imitation Enables Contextual Humanoid Control
 - Walk the PLANC Physics-Guided RL for Agile Humanoid Locomotion on Constrained Footholds
 - Walking with Terrain Reconstruction Learning to Traverse Risky Sparse Footholds
+- World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+- P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+- PGMT: Perceptive General Motion Tracking for Humanoid Robots

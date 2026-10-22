@@ -1455,3 +1455,64 @@ Real low-cost quadruped trials demonstrate agile sparse-terrain traversal and vi
 Height reconstruction has no formal uncertainty and its loss may favor average surface error over edge topology. Recurrent alignment can drift, movable stones make memory stale, and a 2.5-D grid cannot model overhangs. The policy may also use hidden latents while the displayed map looks plausible, limiting interpretability.
 
 Future work should measure edge/foothold error, not only height MAE; predict support probability/confidence; erase changed terrain; and test long occlusions. An ablation blocking latent bypass would determine how much control truly depends on reconstruction. Combining contact feedback with visual memory could correct a map after the foot discovers unexpected compliance.
+
+
+## World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+
+Source: [arXiv 2609.02542](https://arxiv.org/abs/2609.02542).
+
+WM-LOCO targets terrain where a single locally reasonable foot placement can make the rest of the route impossible: gaps, stepping stones, and narrow stair treads. A matched reactive PPO policy sees the current terrain but often commits too early. WM-LOCO jointly trains a recurrent predictive model so the actor receives a compact summary of likely future observations and rewards before selecting the next joint action.
+
+### Observation history, world model, and control output
+
+The deployed input combines five frames of proprioceptive history, commanded base-frame velocity, and one head-mounted depth image from an onboard Intel RealSense D435. There are no explicit foothold labels or external map. A recurrent world-model pathway predicts near-future observation/reward information and exposes its hidden feature to a mixture-of-experts actor–critic. The actor outputs whole-body joint targets for the Unitree G1; PPO, an adversarial motion prior, normal locomotion rewards, and terrain-specific contact shaping train control. The baseline uses the same reward, perception stream, proprioceptive encoder, MoE policy, and training budget but removes the predictive pathway, making the comparison unusually clean.
+
+Training uses thousands of parallel IsaacLab environments with procedural gaps, stones, and stairs. On held-out terrain, the world-model policy succeeds on gap and stepping-stone settings where the matched baseline reports zero success, while matching stair success with smoother pelvis motion and more efficient strides. The same onboard policy traverses all three physical terrain classes with 93.3% average success.
+
+### What is novel and what remains uncertain
+
+The useful idea is not a long pixel rollout but a predictive recurrent state optimized jointly with the motor policy. It offers anticipation without constructing an explicit height map or committing to a footstep planner. The principal ambiguity is whether gain comes from prediction or simply extra recurrent capacity; auxiliary-loss and capacity-matched recurrent ablations are essential. Terrain-specific shaping also supplies privileged training knowledge even though deployment has no foothold labels.
+
+Future work should expose prediction horizon and calibration, test depth dropout/latency and moving or deformable supports, and compare with explicit foothold planning at equal compute. A safety layer should reason about support uncertainty before committing to irreversible contacts, and the model should report when the next feasible foothold lies outside its visual/history support.
+
+
+## P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+
+Source: [arXiv 2610.15833](https://arxiv.org/abs/2610.15833).
+
+P-BFM extends behavioral foundation models to terrain without requiring a demonstration for every behavior–terrain pair. It factorizes command semantics into terrain-invariant intent and terrain-conditioned realization: the same “walk,” goal, or reward latent should lead to different foot height, stride, posture, and contacts when the local geometry changes.
+
+### Forward–backward intent and perceptive execution
+
+A forward–backward representation learns a shared latent intent space through unsupervised reinforcement learning. Motion references, target states, and reward functions can all be mapped into this space without embedding terrain into the command itself. A perceptive policy then consumes the intent, proprioceptive history, and onboard terrain observation/depth to produce whole-body joint targets. The training critic can use privileged simulation geometry, while physical deployment uses onboard depth on Unitree G1.
+
+Pure latent commands often preserve a local motion pattern but lose precise global displacement. Explicit Root Instructions (ERI) therefore carry desired planar velocity/heading separately from the behavior latent. The latent describes local style and whole-body intent; ERI controls global transport; terrain perception modifies how contacts realize both. This division lets one fixed intent yield high steps, shortened stride, crouching, or alternate footholds without terrain-matched demonstrations.
+
+The frozen policy supports motion tracking, goal reaching, reward inference, teleoperation, and recovery across challenging terrain. Reported comparisons show improved motion fidelity, root-control precision, and perturbation recovery over nonperceptive or less structured baselines, with zero-shot G1 transfer.
+
+### Assessment and future work
+
+The strongest contribution is avoiding a combinatorial dataset of every motion on every terrain. Separating global root progress from latent behavior also repairs a concrete BFM weakness. Still, “terrain-invariant” intent is an inductive goal rather than guaranteed disentanglement; terrain and behavior may interact in ways that require changing semantics, not merely realization. Depth-based local geometry does not capture friction, compliance, moving supports, or upper-body obstacles.
+
+Future work should test novel behavior–terrain compositions, remove or corrupt ERI, quantify latent leakage of terrain, and add uncertainty-aware fallback. Tactile/contact feedback and semantic perception are needed where identical geometry has different physical affordance.
+
+
+## PGMT: Perceptive General Motion Tracking for Humanoid Robots
+
+Source: [arXiv 2609.08511](https://arxiv.org/abs/2609.08511).
+
+PGMT asks how one general motion tracker can preserve reference intent while adapting to terrain that makes the literal reference infeasible. It first learns broad flat-ground tracking and recovery, then introduces perception through motion-conditioned terrain glimpses and a terrain-aware relaxation mechanism rather than training a separate policy for each locomotion skill.
+
+### Motion-conditioned perception and relaxed tracking
+
+The deployed policy receives humanoid proprioceptive/history features, a kinematic motion reference, and local terrain sensing from onboard depth. Instead of encoding the entire terrain map uniformly, motion-conditioned glimpses select regions relevant to the commanded body/foot trajectory. This focuses capacity on upcoming contacts and clearance while avoiding irrelevant geometry. A general tracking-and-recovery prior provides stable whole-body execution and fall recovery.
+
+Terrain-aware relaxation lets the policy deviate from exact pose or root targets when geometry demands it, while preserving higher-level motion intent. The actor outputs joint-position targets for Unitree G1; privileged terrain/state can be used by training critics or auxiliary targets, but deployment uses onboard perception. Motion and terrain are sampled independently in training, testing whether the controller composes them rather than memorizing matched pairs.
+
+Zero-shot hardware demonstrations cover terrain-adaptive walking, dynamic whole-body motions, teleoperation, and recovery over obstacles up to 37 cm. This breadth is the main result: a single controller modifies step height, posture, and contact timing while retaining the requested upper-body or stylistic motion.
+
+### Assessment
+
+Selective glimpses are a strong answer to the question “where should the policy look for this motion?” and relaxation acknowledges that exact tracking can be unsafe. The difficult issue is deciding what may be relaxed: too little causes collision/fall, while too much changes task semantics. Local depth also misses friction, compliant ground, dynamic obstacles, and terrain behind occlusion.
+
+Future work should expose relaxation magnitude and priority to the user, calibrate terrain uncertainty, compare against full-map encoders at equal capacity, and test adversarial motion–terrain conflicts. Contact/tactile sensing and semantic collision constraints would help protect task-critical hands or carried objects while feet adapt.

@@ -845,3 +845,216 @@ In simulated Carry, I-BFM reports 94.3% nominal success and 89.3% after a force-
 The highlight is representing the physical consequence of whole-body action, not only the humanoid pose. That makes I-BFM closer to an interaction dynamics model while retaining direct reactive control. However, “zero-shot task” still depends on manually specified rewards, measurable object/contact state, training support, and external phase logic. One box geometry, motion-capture perception, qualitative hardware trials, and one-day-old preprint evidence are not yet enough to establish broad object or environment generalization. Comparisons also differ in native inference and training data, so matched-data baselines are needed.
 
 Next work should replace motion capture with egocentric RGB-D and tactile/contact estimation, report the exact observation history and network sizes, and measure latency from sensing through PD execution. Tests should vary object geometry, mass, friction, grasp type, clutter, and contact loss, with held-out interaction families rather than new target positions alone. A coverage/uncertainty estimator should reject rewards outside the learned occupancy, while a safety shield limits latent commands and contact forces. Automatic semantic reward generation from language or vision would make the prompt interface useful to higher-level agents, but only if grounded rewards cannot exploit unobserved state or unsafe shortcuts.
+
+
+## InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+
+Source: [arXiv 2610.06850](https://arxiv.org/abs/2610.06850).
+
+InterMimicGen turns physics-based imitation into a data flywheel. Human–object interaction captures are diverse but sparse, use incompatible schemas, and are not directly executable by a humanoid. The system first consolidates sources such as InterAct and HiPHI, retargets them while preserving body coordination and hand–object relations, then trains one dexterous whole-body tracker. Crucially, successful robot execution becomes the validator and parent data for another augmentation round.
+
+### Retargeting, tracker, and self-evolution loop
+
+Contact-aware retargeting proceeds in stages: a grasp-shaping stage emphasizes finger opposition and hand–object structure, followed by geometric cleanup that reduces penetration while preserving contacts. The resulting references cover different objects, robot bodies, and hand configurations. A physics-based generalist tracking policy observes robot state plus reference motion and produces joint targets for a humanoid with dexterous hands; its feedback dynamics determine whether the nominal kinematic reference is genuinely executable.
+
+Each evolution round makes small task-preserving edits. Object trajectories are translated or rotated; body style can change through crouch, stance width, toe angle, or arm-nullspace adjustments. New proposals are blended from validated parents, the tracker is fine-tuned on them, and simulated rollouts are accepted only when they reach the reference end without falling, satisfy smoothness checks, and preserve the task outcome. Accepted variants seed the next round. This policy-in-the-loop mechanism is the main novelty: a frozen tracker can filter only near its initial competence, while an adapting tracker expands the reachable neighborhood.
+
+The seed collection contains 16,059 consolidated motions, and the reported iterative process grows executable coverage by roughly 150× over five rounds. Experiments span Unitree G1 variants with different hands, Booster robots, and other embodiments, with physical deployments showing that the generated references are not purely simulator artifacts.
+
+### Assessment and future work
+
+The highlight is coupling data generation and motor competence rather than assuming either is fixed. Yet the validator is partly self-referential: success under the current tracker may reject valuable motions that another controller could learn and accept variants that exploit its particular reward or simulator. Small local edits can compound without proving semantic diversity. Future evaluations should use independent task metrics, held-out trackers and physics engines, contact-force limits, dataset deduplication, and explicit provenance across generations. Uncertainty-aware acceptance and human review for rare contact modes would reduce the chance that the flywheel scales its own blind spots.
+
+
+## HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+
+Source: [arXiv 2609.34674](https://arxiv.org/abs/2609.34674).
+
+HOI-Retarget treats contact—not body-pose similarity—as the invariant that should survive human-to-robot transfer. Its input is a human motion, object trajectory and geometry, plus labeled contact intervals/locations. Its output is a robot-compatible whole-body reference and aligned object interaction that can be used as tracking data; it is an offline kinematic optimizer, not a deployed perception or control network.
+
+### Object-frame contacts and windowed optimization
+
+An initial inverse-kinematics pass maps the human pose to the target robot and scales the object/trajectory according to embodiment size. Every active human contact is represented as a target point in the object's coordinate frame, so it remains attached to the same surface region when the object moves or changes scale. A windowed nonlinear program then balances body tracking, palm-to-contact error, foot support, smoothness, and joint limits while holding the task's object motion consistent. Pinocchio supplies robot kinematics and CasADi/IPOPT solve the constrained optimization. Contact refinement tools allow noisy monocular-video annotations to be corrected, and the formulation extends to several robots manipulating a shared object.
+
+On the common OMOMO evaluation, the reported mean hand contact-point gap is 0.5 cm versus 18.3 cm for OmniRetarget, with 33.7 seconds versus 156.2 seconds compute per clip. The evaluation covers 13 object categories and thousands of clips, and the released dataset/code support Unitree G1 and H2. Dynamic refinement through RL- or sampling-based execution retains much of the contact advantage.
+
+### Judgment and limitations
+
+The method is compelling because task success in HOI often depends on touching the correct object surface, while low joint error can still miss the handle entirely. Expressing targets in the object frame also makes size augmentation principled. However, kinematic contact is not force feasibility: correct palm placement may demand impossible torque, friction, timing, or grasp closure. Results exclude clips that fail preprocessing/optimization, and annotation quality remains important.
+
+Next work should jointly optimize contact forces and balance, report failure rates before filtering, attach uncertainty to reconstructed contacts, and validate on unseen object topology rather than scaled familiar meshes. Closed-loop controllers should be tested against object displacement so the reference does not become brittle once physical execution diverges.
+
+
+## VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+
+Source: [arXiv 2610.13079](https://arxiv.org/abs/2610.13079).
+
+VICAR learns contact-rich humanoid skills from third-person monocular video. Its premise is that generic retargeting may preserve pose appearance while destroying the world-frame event that defines the task: a racket must meet the ball at a particular pose and speed, a hand must reach the table edge, or feet and hands must land on ladder rungs. VICAR elevates those contacts to explicit high-priority constraints.
+
+### Reconstruction, two-stage retargeting, and runtime conditioning
+
+The pipeline reconstructs human motion, camera/scene geometry, and task-relevant obstacles from video. A first interaction-aware retargeting pass produces a reasonable robot initialization without the full obstacle/contact problem. A second trajectory optimization preserves end-effector translational and angular speed, smooths the motion, penalizes collision/penetration, and imposes user-specified world-frame SE(3) contact anchors at selected frames through Lagrangian penalty terms. Contact and collision constraints have priority rather than being weak terms traded away for pose similarity.
+
+The retargeted motions train physics-based whole-body tracking policies and a contact-conditioned motion generator. Movable contact inputs let the generator shift a strike or grasp pose at runtime instead of replaying one fixed trajectory. The output is a whole-body reference/action interface, not pixels; video perception and manual contact annotation happen before policy deployment.
+
+Ten skills include six table-tennis serves, three pickups, and ladder climbing. Reported simulation success ranges from 95.5–100%, compared with 0–76.2% for prior retargeting pipelines; hardware trials on Unitree G1 report 60–100% across four tasks. Tabletop pickup improves from 76.2% to 99.8%, and ladder climbing from 56.0% to 95.5%.
+
+### Judgment and future work
+
+The highlight is preserving contact pose, timing, speed, and clearance together. The initialization-plus-constrained-refinement structure makes difficult optimization more stable. But contact anchors currently require manual annotation—roughly 20–30 minutes per skill—and monocular obstacle reconstruction can be wrong. Adding comparable post-hoc penalties to baselines also complicates attribution.
+
+The next step is automatic contact discovery with uncertainty, force-aware rather than pose-only contact, and closed-loop visual/tactile correction when objects move. Misannotated or unreachable anchors should trigger explicit infeasibility rather than an unsafe compromise.
+
+
+## MimicX: Policy-in-the-Loop Supervision Refinement for Video-Driven Humanoid Motion Tracking
+
+Source: [arXiv 2610.09055](https://arxiv.org/abs/2610.09055).
+
+MimicX treats repeated tracking failure as evidence that supervision—not only the policy—may be wrong. Monocular video is reconstructed with a world-grounded human-motion estimator, retargeted to a 29-DoF Unitree G1, and tracked with PPO. Instead of freezing that noisy reference and globally tuning rewards, the method analyzes rollouts to locate difficult transitions and affected body regions, then proposes targeted changes to training objectives and reset distribution.
+
+### Policy-in-the-loop refinement
+
+The base tracker consumes robot state and time-indexed reference features and outputs joint-position targets. Rollouts expose termination time, body/anchor error, ankle-height mismatch, velocity error, and collision or task-specific failures. Task-Aware Refinement modifies local versus global tracking weights and dynamic terms near diagnosed segments, while a failure curriculum resets more often around the states the current policy cannot cross.
+
+MimicX trains candidate continuations and subjects them to repeated deterministic execution. Selection prioritizes complete runs and earliest-failure horizon, then termination count and tracking metrics. A candidate must improve the execution-oriented ranking while remaining within a 20% body-error guard; otherwise the incumbent is retained. MimicX-HLoop accelerates diagnosis and verification across heterogeneous execution workers, but the registered reference remains fixed during that loop.
+
+Across four core video tasks, the paper reports 25.7% lower average body-tracking error and a 255.6% longer Robust Execution Horizon than a fixed-reference baseline. Additional generated/video motions and collision scenes probe broader behavior, and released checkpoints/audit records make the accept/reject process inspectable.
+
+### Assessment
+
+The important idea is that reward can improve while worst-case execution becomes shorter; an explicit verification gate prevents such regressions. Yet repeated testing on the same tasks can overfit policy, reward, and acceptance metrics to a narrow reference. Refinement may also hide a fundamentally impossible reconstruction by relaxing the wrong body region.
+
+Future work should validate accepted policies on perturbed dynamics and held-out starts, jointly refine the reference with uncertainty, and use contact/task success metrics independent of the training reward. Reported compute should include rejected candidates and rollout audits, since those are essential parts of the algorithm.
+
+
+## CrossBFM: Distilling a Shared Latent Behavior Space Across Humanoid Embodiments
+
+Source: [arXiv 2609.38087](https://arxiv.org/abs/2609.38087).
+
+CrossBFM treats a behavior-foundation-model latent space as a transferable coordinate system. Training a forward–backward BFM separately on every humanoid costs hundreds of GPU-hours and yields unrelated latent semantics. CrossBFM freezes a source Unitree G1 backward map, uses frame-aligned retargeted motions as cross-embodiment correspondence, and distills the same latent meaning into several target robots.
+
+### Unified encoder and per-robot controller
+
+For each frame, the source backward encoder produces a 256-D latent projected onto a sphere. Target embodiments are represented in a canonical 163-D layout containing 33 joint slots, eight key-body entries, root proprioception, and presence masks. A four-layer pre-LayerNorm transformer reads a 64-frame window and regresses target observations onto the source latent with cosine loss. The architecture contains no learned robot-specific encoder parameters; masks and functional joint mappings handle missing/reordered joints.
+
+A separate PPO latent-conditioned tracker is then trained for each robot. Its deployable input is target-robot proprioception plus the shared behavior latent, and its output is native joint targets. Because the latent coordinates remain those of the source BFM, the same interfaces support motion tracking, pose/goal reaching, reward-derived commands, and a rectified-flow generator that samples behavior-latent chunks such as walk, run, squat, or dance.
+
+Encoder distillation takes under one GPU-hour, followed by roughly ten GPU-hours for each tracker. Across three humanoids, latent tracking stays within 0.025 rad of matched joint-conditioned policies; all 41 reward prompts are evaluated, and physical robots demonstrate tracking, goal interpolation, and generated-latent control. Using one quarter of the corpus costs about 5% tracking performance, while an unseen morphologically similar robot recovers up to 89% of seen-robot performance.
+
+### Assessment
+
+The elegant idea is reusing the behavioral language rather than relearning it. But each embodiment still requires its own PPO motor decoder, and reward prompting uses robot-specific calibration; this is not zero-shot actuation. Generalization drops sharply for more distant morphology, exposing dependence on retargeting correspondence and canonical slots.
+
+Future work should learn force/contact-aware correspondences, quantify missing-joint ambiguity, and jointly train a cross-embodiment decoder. Safety/coverage estimators should reject latents outside a target robot's feasible set rather than assuming semantic alignment implies physical feasibility.
+
+
+## P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+
+Source: [arXiv 2610.15833](https://arxiv.org/abs/2610.15833).
+
+P-BFM extends behavioral foundation models to terrain without requiring a demonstration for every behavior–terrain pair. It factorizes command semantics into terrain-invariant intent and terrain-conditioned realization: the same “walk,” goal, or reward latent should lead to different foot height, stride, posture, and contacts when the local geometry changes.
+
+### Forward–backward intent and perceptive execution
+
+A forward–backward representation learns a shared latent intent space through unsupervised reinforcement learning. Motion references, target states, and reward functions can all be mapped into this space without embedding terrain into the command itself. A perceptive policy then consumes the intent, proprioceptive history, and onboard terrain observation/depth to produce whole-body joint targets. The training critic can use privileged simulation geometry, while physical deployment uses onboard depth on Unitree G1.
+
+Pure latent commands often preserve a local motion pattern but lose precise global displacement. Explicit Root Instructions (ERI) therefore carry desired planar velocity/heading separately from the behavior latent. The latent describes local style and whole-body intent; ERI controls global transport; terrain perception modifies how contacts realize both. This division lets one fixed intent yield high steps, shortened stride, crouching, or alternate footholds without terrain-matched demonstrations.
+
+The frozen policy supports motion tracking, goal reaching, reward inference, teleoperation, and recovery across challenging terrain. Reported comparisons show improved motion fidelity, root-control precision, and perturbation recovery over nonperceptive or less structured baselines, with zero-shot G1 transfer.
+
+### Assessment and future work
+
+The strongest contribution is avoiding a combinatorial dataset of every motion on every terrain. Separating global root progress from latent behavior also repairs a concrete BFM weakness. Still, “terrain-invariant” intent is an inductive goal rather than guaranteed disentanglement; terrain and behavior may interact in ways that require changing semantics, not merely realization. Depth-based local geometry does not capture friction, compliance, moving supports, or upper-body obstacles.
+
+Future work should test novel behavior–terrain compositions, remove or corrupt ERI, quantify latent leakage of terrain, and add uncertainty-aware fallback. Tactile/contact feedback and semantic perception are needed where identical geometry has different physical affordance.
+
+
+## HoRD: Robust Humanoid Control via History-Conditioned Reinforcement Learning and Online Distillation
+
+Source: [arXiv 2602.04412](https://arxiv.org/abs/2602.04412).
+
+HoRD targets domain shift in dynamics, contact properties, simulator, and task specification. It combines a history-conditioned RL expert that infers latent dynamics online with a transformer student that consumes sparse, embodiment-friendly motion commands. The goal is one policy that adapts from recent interaction rather than retraining or explicitly identifying each new domain.
+
+### Teacher memory and deployable student
+
+Stage I trains an expert with PPO under episode-level domain randomization. A History-Conditioned Dynamics Representation module encodes recent state–action trajectories into temporal memory and modulates the actor, allowing it to infer mass, friction, delay, or actuation changes from their effects. The asymmetric expert may see full state and dense future intent during training.
+
+Stage II performs online distillation while the student visits its own state distribution. The student receives sparse proprioception, available environment context, and root-relative 3-D joint keypoint trajectories rather than a dense morphology-specific reference. A Sparse Standardized Joint Representation maps planner output into a platform-agnostic keypoint command. A transformer integrates command/history context and imitates expert actions while retaining history-conditioned adaptation. Output is low-level whole-body control for the target platform.
+
+Experiments report stronger zero-shot robustness than motion-tracking and adaptation baselines under unseen parameters, physics engines, and external perturbations. The important systems distinction is that dynamics inference is continuous and implicit in memory; no separate test-time system-identification optimization is required.
+
+### Judgment and limitations
+
+History is useful only after informative excitation. Immediately after a domain change, several dynamics hypotheses can explain the same short trajectory, and a controller may act unsafely before disambiguation. Distillation can also discard the expert's rare recovery behavior, while sparse keypoints omit contact force and fine end-effector intent.
+
+Future work should report exact history horizon, adaptation time after abrupt changes, uncertainty over inferred dynamics, and failure under nonstationary parameters. Active yet safe probing, tactile/torque input, certified action bounds, and hardware evaluation across genuinely different humanoids would strengthen the cross-domain claim.
+
+
+## ASAP: Aligning Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills
+
+Source: [RSS 2025 / arXiv 2502.01143](https://arxiv.org/abs/2502.01143).
+
+ASAP addresses sim-to-real mismatch by learning an action correction from paired simulated and physical rollouts rather than hand-tuning every parameter or randomizing so broadly that the policy becomes conservative. It is a training-time alignment method: the deployed policy does not run the residual model.
+
+### Four-step alignment pipeline
+
+First, retargeted human motions train reference-conditioned tracking policies in IsaacGym. Those policies are deployed on Unitree G1 to collect real trajectories containing robot observations, commands, and measured responses. A delta-action model is then optimized so that adding its correction inside simulation makes the next simulated state better match the recorded real transition. This learned residual captures combined errors from actuator dynamics, latency, compliance, friction, and imperfect rigid-body parameters without identifying each explicitly.
+
+The delta model is frozen and inserted into the training simulator. The original motion tracker is fine-tuned in this aligned environment, learning actions that compensate for the real system. Finally, the fine-tuned policy is deployed directly on hardware; the delta model is removed because its effect has been absorbed into the controller. Evaluations cover IsaacGym-to-IsaacSim, IsaacGym-to-Genesis, and real G1 transfer.
+
+Demonstrated skills include large forward/side jumps, a 180-degree jumping turn, kicks, single-leg athletic poses, squats, stretches, and dances. Tracking error and qualitative coordination improve relative to system identification, domain randomization, and delta-dynamics baselines.
+
+### Assessment and future work
+
+The elegant point is placing learned mismatch where policy optimization can react to it, while preserving a simple runtime stack. However, the residual is learned near trajectories visited by the original policy; aggressive fine-tuning may leave that support, and mismatch changes with temperature, battery, wear, payload, and floor. Removing the model at deployment also removes an explicit online adaptation mechanism.
+
+Future work should iterate data collection/alignment with safeguards, estimate residual uncertainty, separate latency from state-dependent dynamics, and study transfer across robots and operating conditions. Data-efficiency and risk accounting should include every physical rollout, especially failed agile motions.
+
+
+## PGMT: Perceptive General Motion Tracking for Humanoid Robots
+
+Source: [arXiv 2609.08511](https://arxiv.org/abs/2609.08511).
+
+PGMT asks how one general motion tracker can preserve reference intent while adapting to terrain that makes the literal reference infeasible. It first learns broad flat-ground tracking and recovery, then introduces perception through motion-conditioned terrain glimpses and a terrain-aware relaxation mechanism rather than training a separate policy for each locomotion skill.
+
+### Motion-conditioned perception and relaxed tracking
+
+The deployed policy receives humanoid proprioceptive/history features, a kinematic motion reference, and local terrain sensing from onboard depth. Instead of encoding the entire terrain map uniformly, motion-conditioned glimpses select regions relevant to the commanded body/foot trajectory. This focuses capacity on upcoming contacts and clearance while avoiding irrelevant geometry. A general tracking-and-recovery prior provides stable whole-body execution and fall recovery.
+
+Terrain-aware relaxation lets the policy deviate from exact pose or root targets when geometry demands it, while preserving higher-level motion intent. The actor outputs joint-position targets for Unitree G1; privileged terrain/state can be used by training critics or auxiliary targets, but deployment uses onboard perception. Motion and terrain are sampled independently in training, testing whether the controller composes them rather than memorizing matched pairs.
+
+Zero-shot hardware demonstrations cover terrain-adaptive walking, dynamic whole-body motions, teleoperation, and recovery over obstacles up to 37 cm. This breadth is the main result: a single controller modifies step height, posture, and contact timing while retaining the requested upper-body or stylistic motion.
+
+### Assessment
+
+Selective glimpses are a strong answer to the question “where should the policy look for this motion?” and relaxation acknowledges that exact tracking can be unsafe. The difficult issue is deciding what may be relaxed: too little causes collision/fall, while too much changes task semantics. Local depth also misses friction, compliant ground, dynamic obstacles, and terrain behind occlusion.
+
+Future work should expose relaxation magnitude and priority to the user, calibrate terrain uncertainty, compare against full-map encoders at equal capacity, and test adversarial motion–terrain conflicts. Contact/tactile sensing and semantic collision constraints would help protect task-critical hands or carried objects while feet adapt.
+
+## SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model
+
+Sources: [arXiv 2610.28480](https://arxiv.org/abs/2610.28480) and the [project page](https://supermimic.github.io/).
+
+SuperMimic attacks the compute cost of large-scale humanoid motion tracking. Model-free PPO repeatedly discovers the physical consequence of actions through expensive simulator steps, even though every clip in a motion library uses the same robot dynamics. SuperMimic instead learns one differentiable dynamics surrogate, uses it to imagine short rollouts, and obtains low-variance analytic policy gradients by backpropagating return through time. The important distinction is that it does **not** require a differentiable simulator: MuJoCo Warp supplies ordinary logged transitions, while the learned world model supplies differentiable predictions and Jacobians.
+
+### Inputs, outputs, and deployed controller
+
+The Unitree G1 policy runs at 50 Hz and uses proprioception only. One observation contains 29 joint positions relative to the default pose, 29 joint velocities, three-axis IMU base angular velocity, three-dimensional projected gravity, and the previous 29-dimensional action. The decoder receives the most recent 10 observations, so it has 0.2 seconds of state/action history. The motion interface separately encodes 10 future reference frames. It maps them through a 2048–1024–512–256 MLP to a bounded 32-dimensional latent; a shared 2048–1024–512–256 MLP combines that latent with observation history and outputs 29 normalized joint commands. Each command becomes a joint setpoint around the default pose; low PD gains make the setpoint behave more like a torque proxy than a stiff position target. There is no camera, LiDAR, terrain map, or tactile input.
+
+The architecture is deliberately an MLP rather than a Transformer. Its generality comes from dataset scale and goal conditioning, not attention. A separate velocity-command encoder illustrates the multi-interface design: it consumes desired planar velocity/yaw rate plus observation-history features and maps them through a 256–256 MLP into the same 32-dimensional latent and shared motor decoder. Each interface has its own 256–128 critic. This makes the controller a reusable motor prior whose command encoder can change while its physical action space remains fixed.
+
+### World model and training loop
+
+Training alternates three steps throughout, rather than pretraining and freezing a dynamics model. First, the current deterministic policy runs in MuJoCo Warp with injected action noise and stores transitions in replay. Second, a dynamics MLP with three 2048-wide hidden layers is fitted autoregressively over eight logged steps. It receives predicted state, action, and explicit simulation context—friction, joint calibration offsets, and torso center-of-mass offsets—and predicts the next state. Learned or analytic heads additionally produce noise-free observations, reward, and a soft termination probability. Known sensor noise is added outside the model, keeping the learned dynamics deterministic while still training the policy under noisy observations.
+
+Third, the world model is held fixed only during that policy update. Replay states seed 32-step on-policy imagined rollouts; a bootstrapped critic estimates return beyond the imagination window, while differentiable survival weights replace hard termination. Backpropagation through the full model rollout differentiates reward with respect to every action and then the policy. The critic is important rather than cosmetic: short-horizon training without it becomes myopic after pushes, whereas the bootstrapped version can recover because value beyond the 32 imagined steps affects the update. The motion objective follows BeyondMimic's body/root position, orientation, linear-velocity, and angular-velocity tracking rewards, plus smoothness and joint-limit regularization.
+
+### Evidence, novelty, and judgment
+
+The reported controller trains on 264.56 hours of filtered G1-retargeted BONES-SEED data and is evaluated over 129,514 motions. On the authors' common benchmark, one H100 surpasses the released SONIC checkpoint's normalized return within three hours, with 25 failed motions versus SONIC's 179; a two-H100 run reports no failed motions after 9.8 hours. The paper characterizes this as over 50× less wall-clock time and over 1000× fewer GPU-hours than SONIC's reported 128-L40, seven-day run. A more controlled LAFAN1 experiment holds observations, rewards, networks, randomization, and data constant: SuperMimic reaches 0.82 return in 1.2 hours on one GPU, while PPO-Sim does not reach it within 18 hours even with up to eight GPUs. The learned model is over 10× faster than MuJoCo Warp at practical batch sizes, and analytic gradients need roughly 64× fewer imagined steps than PPO operating on the same learned model.
+
+The strongest idea is amortization: adding motions adds goals but not new robot physics, so one dynamics model can make controller cost grow much more slowly than dataset length. Real G1 demonstrations of a skipping jump, side roll, 90-degree flip, and in-place 360-degree flip show that the result is more than simulator-only return optimization. The downstream velocity experiment also suggests that optimizing a new task reward through the model can outperform merely distilling commands from the motion library.
+
+Several claims still need careful boundaries. SONIC and SuperMimic use different GPU generations and different amounts of motion data, and the reported main curves omit seed variation. Evaluation on the training motion collection measures coverage and execution, not unseen-motion generalization. A learned model can provide an incorrect but exploitable gradient outside replay support; frequent refitting and short horizons reduce that risk but do not certify it. The dynamics model is trained only from simulation, deployment is flat-ground proprioceptive control, and the paper explicitly excludes terrain and object interaction. The preliminary velocity interface freezes the shared decoder for its own reward, so it does not yet demonstrate unconstrained joint multi-task learning.
+
+Next work should test held-out motion families and embodiments, quantify world-model uncertainty and gradient error rather than state error alone, and compare total energy/cost on matched hardware. An ensemble or trust region could stop imagined updates when they leave replay support. Incorporating real transitions could turn the same differentiable model into online system identification, while terrain, vision, contact, and object state would test whether one model still amortizes dynamics when contacts and environment geometry vary substantially.

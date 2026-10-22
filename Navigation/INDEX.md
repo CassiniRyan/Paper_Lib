@@ -30,3 +30,4 @@ PDF count: 10
 - UEREBot: Learning Safe Quadrupedal Locomotion under Unstructured Environments and High-Speed Dynamic Obstacles
 - VLFM: Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
 - WMNav: Integrating Vision-Language Models into World Models for Object Goal Navigation
+- Efficient-VLN: A Simple yet Strong Baseline for Efficient Vision-Language Navigation

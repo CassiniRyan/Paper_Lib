@@ -15,4 +15,5 @@ PDF count: 0
 - TANGO: Humanoid Navigation in Cluttered Environments with a Whole-Body Vision-Language-Action Model
 - VLFM: Vision-Language Frontier Maps for Zero-Shot Semantic Navigation
 - WMNav: Integrating Vision-Language Models into World Models for Object Goal Navigation
+- Efficient-VLN: A Simple yet Strong Baseline for Efficient Vision-Language Navigation
 

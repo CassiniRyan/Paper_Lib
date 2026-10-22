@@ -18,3 +18,4 @@ PDF count: 6
 - TextOp: Real-time Interactive Text-Driven Humanoid Robot Motion Generation and Control
 - UniAct: Unified Motion Generation and Action Streaming for Humanoid Robots
 - Unified Walking, Running, and Recovery for Humanoids via State-Dependent Adversarial Motion Priors
+- CrossBFM: Distilling a Shared Latent Behavior Space Across Humanoid Embodiments

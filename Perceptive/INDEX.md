@@ -44,3 +44,11 @@ PDF count: 3
 - TAGA: Terrain-aware Active Gaze Learning for Generalizable Agile Humanoid Locomotion
 - VB-Com: Learning Vision-Blind Composite Humanoid Locomotion Against Deficient Perception
 - ViBe: Visual Behavior Adaptation for Perceptive Humanoid Whole-Body Control
+- ScaRF-SLAM: Scale-Consistent Reconstruction with Feed-Forward Models and Classical Visual SLAM
+- World-Model-Augmented Visual Locomotion for Humanoids on Foothold-Constrained Terrain
+- Reflex: Visually Grounded Reactive Humanoid Control
+- PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+- Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+- Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data
+- P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+- PGMT: Perceptive General Motion Tracking for Humanoid Robots

@@ -13,3 +13,4 @@ PDF count: 0
 - TANGO: Humanoid Navigation in Cluttered Environments with a Whole-Body Vision-Language-Action Model
 - π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities
 - π0: A Vision-Language-Action Flow Model for General Robot Control
+- Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation

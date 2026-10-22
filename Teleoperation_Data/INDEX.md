@@ -20,3 +20,9 @@ PDF count: 5
 - TWIST2: Scalable, Portable, and Holistic Humanoid Data Collection System
 - TWIST: Teleoperated Whole-Body Imitation System
 - X-OP: Cross-Morphology Whole-Body Teleoperation via MPC Retargeting
+- InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+- HOI-Retarget: Contact-Centric Retargeting for Human-Object Interaction
+- OmniHOI: Dexterous Hand-Object Interaction from Monocular Human Video
+- PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+- VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+- Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data

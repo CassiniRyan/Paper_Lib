@@ -66,3 +66,17 @@ PDF count: 19
 - Weave: Learning Whole-Body Dexterous Loco-Manipulation from Human-Object Interactions
 - WT-UMI: Tactile-based Whole-Body Manipulation via Force-Supervised Contact-Aware Planning
 - Zero-Shot Whole-Body Humanoid Control via Behavioral Foundation Models
+- InterMimicGen: Scaling Humanoid Loco-Manipulation through Self-Evolving Motion Imitation
+- HULK: Learning Whole-Body Forceful Loco-Manipulation for Humanoids
+- Reflex: Visually Grounded Reactive Humanoid Control
+- PanTact: Teaching Whole-Body Dexterity with a Wearable Contact Interface
+- VICAR: Video Imitation with Contact-Aware Retargeting for Humanoid Interactive Skills
+- MimicX: Policy-in-the-Loop Supervision Refinement for Video-Driven Humanoid Motion Tracking
+- Uni-VLaT: Whole-Body Tactile Adaptation of VLA Policies for Humanoid Loco-Manipulation
+- CrossBFM: Distilling a Shared Latent Behavior Space Across Humanoid Embodiments
+- Workhorse: Learning Robust Whole-Body Humanoid Loco-Manipulation from Human Data
+- P-BFM: Perceptive Behavioral Foundation Models for Humanoid Control via Unsupervised Reinforcement Learning
+- HoRD: Robust Humanoid Control via History-Conditioned Reinforcement Learning and Online Distillation
+- ASAP: Aligning Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills
+- PGMT: Perceptive General Motion Tracking for Humanoid Robots
+- SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model
